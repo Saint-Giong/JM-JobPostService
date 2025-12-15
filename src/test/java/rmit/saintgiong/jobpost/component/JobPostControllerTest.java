@@ -14,7 +14,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import rmit.saintgiong.jobpost.JobpostApplication;
 import rmit.saintgiong.jobpost.api.internal.CreateJobPostInterface;
+import rmit.saintgiong.jobpost.api.internal.UpdateJobPostInterface;
 import rmit.saintgiong.jobpost.api.internal.dto.request.CreateJobPostRequestDto;
+import rmit.saintgiong.jobpost.api.internal.dto.request.UpdateJobPostRequestDto;
 import rmit.saintgiong.jobpost.api.internal.dto.response.CreateJobPostResponseDto;
 
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -24,6 +26,7 @@ import java.util.UUID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
@@ -42,6 +45,9 @@ class JobPostControllerTest {
 
     @MockitoBean
     private CreateJobPostInterface createService;
+
+    @MockitoBean
+    private UpdateJobPostInterface updateService;
 
     @Nested
     @DisplayName("Create Job Post API")
@@ -157,6 +163,129 @@ class JobPostControllerTest {
                     .andExpect(jsonPath("$.details[0].issue", Matchers.containsString("Invalid UUID format")));
 
             verify(createService, times(1)).createJobPost(any(CreateJobPostRequestDto.class));
+        }
+    }
+
+    @Nested
+    @DisplayName("Update Job Post API")
+    class UpdateJobPostApiTests {
+
+        private UpdateJobPostRequestDto validUpdateRequest;
+        private String existingId;
+
+        @BeforeEach
+        void setUpUpdate() {
+            existingId = UUID.randomUUID().toString();
+            validUpdateRequest = UpdateJobPostRequestDto.builder()
+                    .title("Updated Title")
+                    .description("Updated description")
+                    .city("Updated City")
+                    .employmentType("Part-time")
+                    .salaryTitle("AUD")
+                    .salaryMin(500.0)
+                    .salaryMax(1500.0)
+                    .expiryDate(java.time.LocalDateTime.now().plusDays(5))
+                    .published(Boolean.TRUE)
+                    .country("AU")
+                    .companyId(UUID.randomUUID().toString())
+                    .build();
+        }
+
+        @Test
+        @DisplayName("Should update job post and return 204 (async)")
+        void testUpdateJobPost_Valid_Success() throws Exception {
+            // Arrange
+            doNothing().when(updateService).updateJobPost(any(String.class), any(UpdateJobPostRequestDto.class));
+
+            // Act
+            MvcResult result = mockMvc.perform(patch("/v1/sgjm/jobpost/" + existingId)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(validUpdateRequest)))
+                    .andExpect(request().asyncStarted())
+                    .andReturn();
+
+            // Complete async
+            mockMvc.perform(asyncDispatch(result))
+                    .andExpect(status().isNoContent());
+
+            verify(updateService, times(1)).updateJobPost(any(String.class), any(UpdateJobPostRequestDto.class));
+        }
+
+        @Test
+        @DisplayName("Should return 404 when service throws DomainException")
+        void testUpdateJobPost_ServiceDomainException_Returns404() throws Exception {
+            // Arrange
+            doThrow(new rmit.saintgiong.jobpost.common.exception.DomainException(
+                    rmit.saintgiong.jobpost.common.exception.DomainCode.RESOURCE_NOT_FOUND, "Missing"))
+                    .when(updateService).updateJobPost(any(String.class), any(UpdateJobPostRequestDto.class));
+
+            // Act
+            MvcResult result = mockMvc.perform(patch("/v1/sgjm/jobpost/" + existingId)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(validUpdateRequest)))
+                    .andExpect(request().asyncStarted())
+                    .andReturn();
+
+            mockMvc.perform(asyncDispatch(result))
+                    .andExpect(status().isNotFound());
+
+            verify(updateService, times(1)).updateJobPost(any(String.class), any(UpdateJobPostRequestDto.class));
+        }
+
+        @Test
+        @DisplayName("Should fail when title is blank")
+        void testUpdateJobPost_BlankTitle_Fail() throws Exception {
+            UpdateJobPostRequestDto req = UpdateJobPostRequestDto.builder()
+                    .title("")
+                    .description(validUpdateRequest.getDescription())
+                    .city(validUpdateRequest.getCity())
+                    .expiryDate(validUpdateRequest.getExpiryDate())
+                    .published(validUpdateRequest.isPublished())
+                    .country(validUpdateRequest.getCountry())
+                    .companyId(UUID.randomUUID().toString())
+                    .build();
+
+            mockMvc.perform(patch("/v1/sgjm/jobpost/" + existingId)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(req)))
+                    .andExpect(status().isBadRequest());
+
+            verify(updateService, never()).updateJobPost(any(), any());
+        }
+
+        @Test
+        @DisplayName("Should fail when expiryDate is missing")
+        void testUpdateJobPost_MissingExpiryDate_Fail() throws Exception {
+            UpdateJobPostRequestDto req = UpdateJobPostRequestDto.builder()
+                    .title(validUpdateRequest.getTitle())
+                    .description(validUpdateRequest.getDescription())
+                    .city(validUpdateRequest.getCity())
+                    // expiryDate omitted -> null
+                    .published(validUpdateRequest.isPublished())
+                    .country(validUpdateRequest.getCountry())
+                    .companyId(UUID.randomUUID().toString())
+                    .build();
+
+            mockMvc.perform(patch("/v1/sgjm/jobpost/" + existingId)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(req)))
+                    .andExpect(status().isBadRequest());
+
+            verify(updateService, never()).updateJobPost(any(), any());
+        }
+
+
+        @Test
+        @DisplayName("Should return 400 when path id is invalid UUID")
+        void testUpdateJobPost_InvalidUUIDPath_Returns400() throws Exception {
+            String badId = "not-a-uuid";
+
+            mockMvc.perform(patch("/v1/sgjm/jobpost/" + badId)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(validUpdateRequest)))
+                    .andExpect(status().isBadRequest());
+
+            verify(updateService, never()).updateJobPost(any(), any());
         }
     }
 }
