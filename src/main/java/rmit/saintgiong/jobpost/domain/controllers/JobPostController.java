@@ -6,6 +6,7 @@ import org.hibernate.validator.constraints.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,12 +34,21 @@ public class JobPostController {
     private final UpdateJobPostInterface updateService;
 
     private final DeleteJobPostInterface deleteService;
+    private final rmit.saintgiong.jobpost.api.internal.QueryJobPostInterface queryService;
 
     @PostMapping
     public Callable<ResponseEntity<CreateJobPostResponseDto>> createJobPost(@Valid @RequestBody CreateJobPostRequestDto requestDto) {
         return () -> {
             CreateJobPostResponseDto response = createService.createJobPost(requestDto);
             return new ResponseEntity<>(response, HttpStatus.CREATED);
+        };
+    }
+
+    @GetMapping("/{id}")
+    public Callable<ResponseEntity<rmit.saintgiong.jobpost.api.internal.dto.response.QueryJobPostResponseDto>> getJobPost(@PathVariable @UUID String id) {
+        return () -> {
+            rmit.saintgiong.jobpost.api.internal.dto.response.QueryJobPostResponseDto response = queryService.getJobPostById(id);
+            return new ResponseEntity<>(response, HttpStatus.OK);
         };
     }
 
