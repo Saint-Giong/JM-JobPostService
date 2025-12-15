@@ -85,10 +85,10 @@ public class GlobalExceptionHandler extends BaseExceptionHandler {
         return ResponseEntity.badRequest().body(errRes);
     }
 
-    @ExceptionHandler({HandlerMethodValidationException.class})
+    @ExceptionHandler(HandlerMethodValidationException.class)
     public ResponseEntity<ApiError> handlerMethodValidationException(HandlerMethodValidationException ex) {
         // Handle both type mismatches (e.g. wrong parameter type) and method-level validation exceptions
-        log.error("method=handlerMethodValidationException, exception={}", ex.getMessage(), ex);
+        log.error("method=handlerMethodValidationException, exception={}", ex.getMessage());
 
         var errRes = getErrorResponse(INVALID_REQUEST_PARAMETER,
                 INVALID_REQUEST_PARAMETER.getMessageTemplate(),
