@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import rmit.saintgiong.jobpost.JobpostApplication;
 import rmit.saintgiong.jobpost.api.internal.CreateJobPostInterface;
 import rmit.saintgiong.jobpost.api.internal.UpdateJobPostInterface;
+import rmit.saintgiong.jobpost.api.internal.UpdateJobPostInterface;
 import rmit.saintgiong.jobpost.api.internal.DeleteJobPostInterface;
 import rmit.saintgiong.jobpost.api.internal.dto.request.CreateJobPostRequestDto;
 import rmit.saintgiong.jobpost.api.internal.dto.request.UpdateJobPostRequestDto;
