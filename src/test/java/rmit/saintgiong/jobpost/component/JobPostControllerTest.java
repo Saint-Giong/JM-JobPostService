@@ -15,11 +15,15 @@ import org.springframework.test.web.servlet.MvcResult;
 import rmit.saintgiong.jobpost.JobpostApplication;
 import rmit.saintgiong.jobpost.api.internal.CreateJobPostInterface;
 import rmit.saintgiong.jobpost.api.internal.UpdateJobPostInterface;
+import rmit.saintgiong.jobpost.api.internal.UpdateJobPostInterface;
+import rmit.saintgiong.jobpost.api.internal.DeleteJobPostInterface;
 import rmit.saintgiong.jobpost.api.internal.dto.request.CreateJobPostRequestDto;
 import rmit.saintgiong.jobpost.api.internal.dto.request.UpdateJobPostRequestDto;
 import rmit.saintgiong.jobpost.api.internal.dto.response.CreateJobPostResponseDto;
 
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import rmit.saintgiong.jobpost.common.exception.DomainCode;
+import rmit.saintgiong.jobpost.common.exception.DomainException;
 
 import java.util.UUID;
 
@@ -28,6 +32,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -48,6 +53,9 @@ class JobPostControllerTest {
 
     @MockitoBean
     private UpdateJobPostInterface updateService;
+
+    @MockitoBean
+    private DeleteJobPostInterface deleteService;
 
     @Nested
     @DisplayName("Create Job Post API")
@@ -127,8 +135,8 @@ class JobPostControllerTest {
         void testCreateJobPost_ServiceDomainException_Returns404() throws Exception {
             // Arrange
             when(createService.createJobPost(any(CreateJobPostRequestDto.class)))
-                    .thenThrow(new rmit.saintgiong.jobpost.common.exception.DomainException(
-                            rmit.saintgiong.jobpost.common.exception.DomainCode.RESOURCE_NOT_FOUND, "Company missing"));
+                    .thenThrow(new DomainException(
+                            DomainCode.RESOURCE_NOT_FOUND, "Company missing"));
 
             // Act
             MvcResult result = mockMvc.perform(post("/v1/sgjm/jobpost")
@@ -215,8 +223,8 @@ class JobPostControllerTest {
         @DisplayName("Should return 404 when service throws DomainException")
         void testUpdateJobPost_ServiceDomainException_Returns404() throws Exception {
             // Arrange
-            doThrow(new rmit.saintgiong.jobpost.common.exception.DomainException(
-                    rmit.saintgiong.jobpost.common.exception.DomainCode.RESOURCE_NOT_FOUND, "Missing"))
+            doThrow(new DomainException(
+                    DomainCode.RESOURCE_NOT_FOUND, "Missing"))
                     .when(updateService).updateJobPost(any(String.class), any(UpdateJobPostRequestDto.class));
 
             // Act
@@ -286,6 +294,68 @@ class JobPostControllerTest {
                     .andExpect(status().isBadRequest());
 
             verify(updateService, never()).updateJobPost(any(), any());
+        }
+    }
+
+    @Nested
+    @DisplayName("Delete Job Post API")
+    class DeleteJobPostApiTests {
+
+        private String existingId;
+
+        @BeforeEach
+        void setUpDelete() {
+            existingId = UUID.randomUUID().toString();
+        }
+
+        @Test
+        @DisplayName("Should delete job post and return 204 (async)")
+        void testDeleteJobPost_Valid_Success() throws Exception {
+            // Arrange
+            doNothing().when(deleteService).deleteJobPost(any(String.class));
+
+            // Act
+            MvcResult result = mockMvc.perform(delete("/v1/sgjm/jobpost/" + existingId)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(request().asyncStarted())
+                    .andReturn();
+
+            mockMvc.perform(asyncDispatch(result))
+                    .andExpect(status().isNoContent());
+
+            verify(deleteService, times(1)).deleteJobPost(any(String.class));
+        }
+
+        @Test
+        @DisplayName("Should return 404 when service throws DomainException")
+        void testDeleteJobPost_ServiceDomainException_Returns404() throws Exception {
+            // Arrange
+            doThrow(new DomainException(
+                    DomainCode.RESOURCE_NOT_FOUND, "Missing"))
+                    .when(deleteService).deleteJobPost(any(String.class));
+
+            // Act
+            MvcResult result = mockMvc.perform(delete("/v1/sgjm/jobpost/" + existingId)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(request().asyncStarted())
+                    .andReturn();
+
+            mockMvc.perform(asyncDispatch(result))
+                    .andExpect(status().isNotFound());
+
+            verify(deleteService, times(1)).deleteJobPost(any(String.class));
+        }
+
+        @Test
+        @DisplayName("Should return 400 when path id is invalid UUID")
+        void testDeleteJobPost_InvalidUUIDPath_Returns400() throws Exception {
+            String badId = "not-a-uuid";
+
+            mockMvc.perform(delete("/v1/sgjm/jobpost/" + badId)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isBadRequest());
+
+            verify(deleteService, never()).deleteJobPost(any());
         }
     }
 }
