@@ -6,7 +6,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -23,9 +22,9 @@ import rmit.saintgiong.jobpost.api.internal.dto.request.UpdateJobPostRequestDto;
 import rmit.saintgiong.jobpost.api.internal.dto.response.CreateJobPostResponseDto;
 
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import rmit.saintgiong.jobpost.api.internal.dto.response.QueryJobPostResponseDto;
 import rmit.saintgiong.jobpost.common.exception.DomainCode;
 import rmit.saintgiong.jobpost.common.exception.DomainException;
+import rmit.saintgiong.jobpost.api.internal.dto.response.QueryJobPostResponseDto;
 
 import java.util.UUID;
 
@@ -273,7 +272,6 @@ class JobPostControllerTest {
                     .title(validUpdateRequest.getTitle())
                     .description(validUpdateRequest.getDescription())
                     .city(validUpdateRequest.getCity())
-                    // expiryDate omitted -> null
                     .published(validUpdateRequest.isPublished())
                     .country(validUpdateRequest.getCountry())
                     .companyId(UUID.randomUUID().toString())

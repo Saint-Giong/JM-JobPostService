@@ -15,10 +15,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import rmit.saintgiong.jobpost.api.internal.CreateJobPostInterface;
 import rmit.saintgiong.jobpost.api.internal.DeleteJobPostInterface;
+import rmit.saintgiong.jobpost.api.internal.QueryJobPostInterface;
 import rmit.saintgiong.jobpost.api.internal.UpdateJobPostInterface;
 import rmit.saintgiong.jobpost.api.internal.dto.request.CreateJobPostRequestDto;
 import rmit.saintgiong.jobpost.api.internal.dto.request.UpdateJobPostRequestDto;
 import rmit.saintgiong.jobpost.api.internal.dto.response.CreateJobPostResponseDto;
+import rmit.saintgiong.jobpost.api.internal.dto.response.QueryJobPostResponseDto;
 
 import java.util.concurrent.Callable;
 
@@ -34,7 +36,8 @@ public class JobPostController {
     private final UpdateJobPostInterface updateService;
 
     private final DeleteJobPostInterface deleteService;
-    private final rmit.saintgiong.jobpost.api.internal.QueryJobPostInterface queryService;
+
+    private final QueryJobPostInterface queryService;
 
     @PostMapping
     public Callable<ResponseEntity<CreateJobPostResponseDto>> createJobPost(@Valid @RequestBody CreateJobPostRequestDto requestDto) {
@@ -45,9 +48,9 @@ public class JobPostController {
     }
 
     @GetMapping("/{id}")
-    public Callable<ResponseEntity<rmit.saintgiong.jobpost.api.internal.dto.response.QueryJobPostResponseDto>> getJobPost(@PathVariable @UUID String id) {
+    public Callable<ResponseEntity<QueryJobPostResponseDto>> getJobPost(@PathVariable @UUID String id) {
         return () -> {
-            rmit.saintgiong.jobpost.api.internal.dto.response.QueryJobPostResponseDto response = queryService.getJobPostById(id);
+            QueryJobPostResponseDto response = queryService.getJobPostById(id);
             return new ResponseEntity<>(response, HttpStatus.OK);
         };
     }
