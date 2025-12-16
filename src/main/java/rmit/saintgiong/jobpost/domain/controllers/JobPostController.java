@@ -6,6 +6,7 @@ import org.hibernate.validator.constraints.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,10 +15,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import rmit.saintgiong.jobpost.api.internal.CreateJobPostInterface;
 import rmit.saintgiong.jobpost.api.internal.DeleteJobPostInterface;
+import rmit.saintgiong.jobpost.api.internal.QueryJobPostInterface;
 import rmit.saintgiong.jobpost.api.internal.UpdateJobPostInterface;
 import rmit.saintgiong.jobpost.api.internal.dto.request.CreateJobPostRequestDto;
 import rmit.saintgiong.jobpost.api.internal.dto.request.UpdateJobPostRequestDto;
 import rmit.saintgiong.jobpost.api.internal.dto.response.CreateJobPostResponseDto;
+import rmit.saintgiong.jobpost.api.internal.dto.response.QueryJobPostResponseDto;
 
 import java.util.concurrent.Callable;
 
@@ -34,11 +37,21 @@ public class JobPostController {
 
     private final DeleteJobPostInterface deleteService;
 
+    private final QueryJobPostInterface queryService;
+
     @PostMapping
     public Callable<ResponseEntity<CreateJobPostResponseDto>> createJobPost(@Valid @RequestBody CreateJobPostRequestDto requestDto) {
         return () -> {
             CreateJobPostResponseDto response = createService.createJobPost(requestDto);
             return new ResponseEntity<>(response, HttpStatus.CREATED);
+        };
+    }
+
+    @GetMapping("/{id}")
+    public Callable<ResponseEntity<QueryJobPostResponseDto>> getJobPost(@PathVariable @UUID String id) {
+        return () -> {
+            QueryJobPostResponseDto response = queryService.getJobPostById(id);
+            return new ResponseEntity<>(response, HttpStatus.OK);
         };
     }
 

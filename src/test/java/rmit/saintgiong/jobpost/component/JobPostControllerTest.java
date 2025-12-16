@@ -14,7 +14,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import rmit.saintgiong.jobpost.JobpostApplication;
 import rmit.saintgiong.jobpost.api.internal.CreateJobPostInterface;
-import rmit.saintgiong.jobpost.api.internal.UpdateJobPostInterface;
+import rmit.saintgiong.jobpost.api.internal.QueryJobPostInterface;
 import rmit.saintgiong.jobpost.api.internal.UpdateJobPostInterface;
 import rmit.saintgiong.jobpost.api.internal.DeleteJobPostInterface;
 import rmit.saintgiong.jobpost.api.internal.dto.request.CreateJobPostRequestDto;
@@ -24,6 +24,7 @@ import rmit.saintgiong.jobpost.api.internal.dto.response.CreateJobPostResponseDt
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import rmit.saintgiong.jobpost.common.exception.DomainCode;
 import rmit.saintgiong.jobpost.common.exception.DomainException;
+import rmit.saintgiong.jobpost.api.internal.dto.response.QueryJobPostResponseDto;
 
 import java.util.UUID;
 
@@ -56,6 +57,9 @@ class JobPostControllerTest {
 
     @MockitoBean
     private DeleteJobPostInterface deleteService;
+
+    @MockitoBean
+    private QueryJobPostInterface queryService;
 
     @Nested
     @DisplayName("Create Job Post API")
@@ -268,7 +272,6 @@ class JobPostControllerTest {
                     .title(validUpdateRequest.getTitle())
                     .description(validUpdateRequest.getDescription())
                     .city(validUpdateRequest.getCity())
-                    // expiryDate omitted -> null
                     .published(validUpdateRequest.isPublished())
                     .country(validUpdateRequest.getCountry())
                     .companyId(UUID.randomUUID().toString())
@@ -356,6 +359,74 @@ class JobPostControllerTest {
                     .andExpect(status().isBadRequest());
 
             verify(deleteService, never()).deleteJobPost(any());
+        }
+    }
+
+    @Nested
+    @DisplayName("Get Job Post API")
+    class GetJobPostApiTests {
+
+        private String existingId;
+
+        @BeforeEach
+        void setUpGet() {
+            existingId = UUID.randomUUID().toString();
+        }
+
+        @Test
+        @DisplayName("Should return job post details 200 (async)")
+        void testGetJobPost_Valid_Success() throws Exception {
+            // Arrange
+            QueryJobPostResponseDto mockResp =
+                    QueryJobPostResponseDto.builder()
+                            .id(existingId)
+                            .title("Title")
+                            .description("Desc")
+                            .city("City")
+                            .country("AU")
+                            .build();
+
+            when(queryService.getJobPostById(any(String.class))).thenReturn(mockResp);
+
+            // Act
+            MvcResult result = mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/v1/sgjm/jobpost/" + existingId)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(request().asyncStarted())
+                    .andReturn();
+
+            // Complete async
+            mockMvc.perform(asyncDispatch(result))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.id").value(existingId))
+                    .andExpect(jsonPath("$.title").value("Title"));
+        }
+
+        @Test
+        @DisplayName("Should return 404 when service throws DomainException")
+        void testGetJobPost_ServiceDomainException_Returns404() throws Exception {
+            String id = existingId;
+
+            when(queryService.getJobPostById(any(String.class)))
+                    .thenThrow(new DomainException(DomainCode.RESOURCE_NOT_FOUND, "Missing"));
+
+            // Act
+            MvcResult result = mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/v1/sgjm/jobpost/" + id)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(request().asyncStarted())
+                    .andReturn();
+
+            mockMvc.perform(asyncDispatch(result))
+                    .andExpect(status().isNotFound());
+        }
+
+        @Test
+        @DisplayName("Should return 400 when path id is invalid UUID")
+        void testGetJobPost_InvalidUUIDPath_Returns400() throws Exception {
+            String badId = "not-a-uuid";
+
+            mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/v1/sgjm/jobpost/" + badId)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isBadRequest());
         }
     }
 }
