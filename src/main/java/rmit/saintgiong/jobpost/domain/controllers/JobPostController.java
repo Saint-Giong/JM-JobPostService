@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import rmit.saintgiong.jobpost.api.internal.CreateJobPostInterface;
 import rmit.saintgiong.jobpost.api.internal.DeleteJobPostInterface;
@@ -22,12 +21,10 @@ import rmit.saintgiong.jobpost.api.internal.dto.request.UpdateJobPostRequestDto;
 import rmit.saintgiong.jobpost.api.internal.dto.response.CreateJobPostResponseDto;
 import rmit.saintgiong.jobpost.api.internal.dto.response.QueryJobPostResponseDto;
 
+import java.util.List;
 import java.util.concurrent.Callable;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-
 @RestController
-@RequestMapping(value = "/v1/sgjm/jobpost", produces = APPLICATION_JSON_VALUE)
 @AllArgsConstructor
 public class JobPostController {
 
@@ -68,6 +65,14 @@ public class JobPostController {
         return () -> {
             deleteService.deleteJobPost(id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        };
+    }
+
+    @GetMapping("/search/{companyId}")
+    public Callable<ResponseEntity<List<QueryJobPostResponseDto>>> getJobPostsByCompany(@PathVariable @UUID String companyId) {
+        return () -> {
+            List<QueryJobPostResponseDto> response = queryService.getJobPostsByCompanyId(companyId);
+            return new ResponseEntity<>(response, HttpStatus.OK);
         };
     }
 }

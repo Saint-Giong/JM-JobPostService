@@ -14,18 +14,20 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import rmit.saintgiong.jobpost.JobpostApplication;
 import rmit.saintgiong.jobpost.api.internal.CreateJobPostInterface;
-import rmit.saintgiong.jobpost.api.internal.QueryJobPostInterface;
 import rmit.saintgiong.jobpost.api.internal.UpdateJobPostInterface;
 import rmit.saintgiong.jobpost.api.internal.DeleteJobPostInterface;
+import rmit.saintgiong.jobpost.api.internal.QueryJobPostInterface;
 import rmit.saintgiong.jobpost.api.internal.dto.request.CreateJobPostRequestDto;
 import rmit.saintgiong.jobpost.api.internal.dto.request.UpdateJobPostRequestDto;
 import rmit.saintgiong.jobpost.api.internal.dto.response.CreateJobPostResponseDto;
+import rmit.saintgiong.jobpost.api.internal.dto.response.QueryJobPostResponseDto;
 
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import rmit.saintgiong.jobpost.common.exception.DomainCode;
 import rmit.saintgiong.jobpost.common.exception.DomainException;
-import rmit.saintgiong.jobpost.api.internal.dto.response.QueryJobPostResponseDto;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -34,6 +36,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -98,7 +101,7 @@ class JobPostControllerTest {
                     .thenReturn(mockResp);
 
             // Act
-            MvcResult result = mockMvc.perform(post("/v1/sgjm/jobpost")
+            MvcResult result = mockMvc.perform(post("/")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(validCreateRequest)))
                     .andExpect(request().asyncStarted())
@@ -125,7 +128,7 @@ class JobPostControllerTest {
                     .companyId(UUID.randomUUID().toString())
                     .build();
 
-            mockMvc.perform(post("/v1/sgjm/jobpost")
+            mockMvc.perform(post("/")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(req)))
                     .andExpect(status().isBadRequest())
@@ -143,7 +146,7 @@ class JobPostControllerTest {
                             DomainCode.RESOURCE_NOT_FOUND, "Company missing"));
 
             // Act
-            MvcResult result = mockMvc.perform(post("/v1/sgjm/jobpost")
+            MvcResult result = mockMvc.perform(post("/")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(validCreateRequest)))
                     .andExpect(request().asyncStarted())
@@ -164,7 +167,7 @@ class JobPostControllerTest {
                     .thenThrow(new IllegalArgumentException("Invalid UUID format"));
 
             // Act
-            MvcResult result = mockMvc.perform(post("/v1/sgjm/jobpost")
+            MvcResult result = mockMvc.perform(post("/")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(validCreateRequest)))
                     .andExpect(request().asyncStarted())
@@ -210,7 +213,7 @@ class JobPostControllerTest {
             doNothing().when(updateService).updateJobPost(any(String.class), any(UpdateJobPostRequestDto.class));
 
             // Act
-            MvcResult result = mockMvc.perform(patch("/v1/sgjm/jobpost/" + existingId)
+            MvcResult result = mockMvc.perform(patch("/" + existingId)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(validUpdateRequest)))
                     .andExpect(request().asyncStarted())
@@ -232,7 +235,7 @@ class JobPostControllerTest {
                     .when(updateService).updateJobPost(any(String.class), any(UpdateJobPostRequestDto.class));
 
             // Act
-            MvcResult result = mockMvc.perform(patch("/v1/sgjm/jobpost/" + existingId)
+            MvcResult result = mockMvc.perform(patch("/" + existingId)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(validUpdateRequest)))
                     .andExpect(request().asyncStarted())
@@ -240,6 +243,25 @@ class JobPostControllerTest {
 
             mockMvc.perform(asyncDispatch(result))
                     .andExpect(status().isNotFound());
+
+            verify(updateService, times(1)).updateJobPost(any(String.class), any(UpdateJobPostRequestDto.class));
+        }
+
+        @Test
+        @DisplayName("Should return 400 when service throws IllegalArgumentException")
+        void testUpdateJobPost_ServiceIllegalArgument_Returns400() throws Exception {
+            doThrow(new IllegalArgumentException("Invalid operation"))
+                    .when(updateService).updateJobPost(any(String.class), any(UpdateJobPostRequestDto.class));
+
+            MvcResult result = mockMvc.perform(patch("/" + existingId)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(validUpdateRequest)))
+                    .andExpect(request().asyncStarted())
+                    .andReturn();
+
+            mockMvc.perform(asyncDispatch(result))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.details[0].issue", Matchers.containsString("Invalid operation")));
 
             verify(updateService, times(1)).updateJobPost(any(String.class), any(UpdateJobPostRequestDto.class));
         }
@@ -257,7 +279,7 @@ class JobPostControllerTest {
                     .companyId(UUID.randomUUID().toString())
                     .build();
 
-            mockMvc.perform(patch("/v1/sgjm/jobpost/" + existingId)
+            mockMvc.perform(patch("/" + existingId)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(req)))
                     .andExpect(status().isBadRequest());
@@ -277,7 +299,7 @@ class JobPostControllerTest {
                     .companyId(UUID.randomUUID().toString())
                     .build();
 
-            mockMvc.perform(patch("/v1/sgjm/jobpost/" + existingId)
+            mockMvc.perform(patch("/" + existingId)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(req)))
                     .andExpect(status().isBadRequest());
@@ -291,12 +313,116 @@ class JobPostControllerTest {
         void testUpdateJobPost_InvalidUUIDPath_Returns400() throws Exception {
             String badId = "not-a-uuid";
 
-            mockMvc.perform(patch("/v1/sgjm/jobpost/" + badId)
+            mockMvc.perform(patch("/" + badId)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(validUpdateRequest)))
                     .andExpect(status().isBadRequest());
 
             verify(updateService, never()).updateJobPost(any(), any());
+        }
+
+        @Test
+        @DisplayName("Should fail when expiry date is in the past")
+        void testUpdateJobPost_ExpiryInPast_Fail() throws Exception {
+            UpdateJobPostRequestDto req = UpdateJobPostRequestDto.builder()
+                    .title(validUpdateRequest.getTitle())
+                    .description(validUpdateRequest.getDescription())
+                    .city(validUpdateRequest.getCity())
+                    .expiryDate(java.time.LocalDateTime.now().minusDays(1))
+                    .published(validUpdateRequest.isPublished())
+                    .country(validUpdateRequest.getCountry())
+                    .companyId(UUID.randomUUID().toString())
+                    .build();
+
+            // Validator should catch this and cause 400
+            doThrow(new DomainException(DomainCode.INVALID_REQUEST_PARAMETER, "Expiry must be in future"))
+                    .when(updateService).updateJobPost(any(String.class), any(UpdateJobPostRequestDto.class));
+
+            MvcResult result = mockMvc.perform(patch("/" + existingId)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(req)))
+                    .andExpect(request().asyncStarted())
+                    .andReturn();
+
+            mockMvc.perform(asyncDispatch(result))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.message", Matchers.containsString("INVALID_REQUEST_PARAMETER")));
+
+            verify(updateService, times(1)).updateJobPost(any(String.class), any(UpdateJobPostRequestDto.class));
+        }
+    }
+
+    @Nested
+    @DisplayName("Get Job Posts By Company API")
+    class GetByCompanyApiTests {
+
+        private String companyId;
+
+        @BeforeEach
+        void setUp() {
+            companyId = UUID.randomUUID().toString();
+        }
+
+        @Test
+        @DisplayName("Should return list of job posts for a company (async)")
+        void testGetByCompany_Valid_Success() throws Exception {
+            QueryJobPostResponseDto dto1 = QueryJobPostResponseDto.builder()
+                    .id(UUID.randomUUID().toString())
+                    .title("Job 1")
+                    .companyId(companyId)
+                    .build();
+
+            QueryJobPostResponseDto dto2 = QueryJobPostResponseDto.builder()
+                    .id(UUID.randomUUID().toString())
+                    .title("Job 2")
+                    .companyId(companyId)
+                    .build();
+
+            List<QueryJobPostResponseDto> list = Arrays.asList(dto1, dto2);
+
+            when(queryService.getJobPostsByCompanyId(companyId)).thenReturn(list);
+
+            MvcResult result = mockMvc.perform(get("/search/" + companyId)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(request().asyncStarted())
+                    .andReturn();
+
+            mockMvc.perform(asyncDispatch(result))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$[0].companyId").value(companyId))
+                    .andExpect(jsonPath("$[1].companyId").value(companyId));
+
+            verify(queryService, times(1)).getJobPostsByCompanyId(companyId);
+        }
+
+        @Test
+        @DisplayName("Should return empty list when company has no posts")
+        void testGetByCompany_EmptyList() throws Exception {
+            when(queryService.getJobPostsByCompanyId(companyId)).thenReturn(Arrays.asList());
+
+            MvcResult result = mockMvc.perform(get("/search/" + companyId)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(request().asyncStarted())
+                    .andReturn();
+
+            mockMvc.perform(asyncDispatch(result))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$").isArray())
+                    .andExpect(jsonPath("$.length()").value(0));
+
+            verify(queryService, times(1)).getJobPostsByCompanyId(companyId);
+        }
+
+        @Test
+        @DisplayName("Should return 400 when company id path is invalid UUID")
+        void testGetByCompany_InvalidUUIDPath_Returns400() throws Exception {
+            String badCompanyId = "not-a-uuid";
+
+            mockMvc.perform(get("/search/" + badCompanyId)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isBadRequest());
+
+            verify(queryService, never()).getJobPostsByCompanyId(any());
         }
     }
 
@@ -318,7 +444,7 @@ class JobPostControllerTest {
             doNothing().when(deleteService).deleteJobPost(any(String.class));
 
             // Act
-            MvcResult result = mockMvc.perform(delete("/v1/sgjm/jobpost/" + existingId)
+            MvcResult result = mockMvc.perform(delete("/" + existingId)
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(request().asyncStarted())
                     .andReturn();
@@ -338,7 +464,7 @@ class JobPostControllerTest {
                     .when(deleteService).deleteJobPost(any(String.class));
 
             // Act
-            MvcResult result = mockMvc.perform(delete("/v1/sgjm/jobpost/" + existingId)
+            MvcResult result = mockMvc.perform(delete("/" + existingId)
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(request().asyncStarted())
                     .andReturn();
@@ -354,7 +480,7 @@ class JobPostControllerTest {
         void testDeleteJobPost_InvalidUUIDPath_Returns400() throws Exception {
             String badId = "not-a-uuid";
 
-            mockMvc.perform(delete("/v1/sgjm/jobpost/" + badId)
+            mockMvc.perform(delete("/" + badId)
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isBadRequest());
 
@@ -389,7 +515,7 @@ class JobPostControllerTest {
             when(queryService.getJobPostById(any(String.class))).thenReturn(mockResp);
 
             // Act
-            MvcResult result = mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/v1/sgjm/jobpost/" + existingId)
+            MvcResult result = mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/" + existingId)
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(request().asyncStarted())
                     .andReturn();
@@ -410,7 +536,7 @@ class JobPostControllerTest {
                     .thenThrow(new DomainException(DomainCode.RESOURCE_NOT_FOUND, "Missing"));
 
             // Act
-            MvcResult result = mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/v1/sgjm/jobpost/" + id)
+            MvcResult result = mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/" + id)
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(request().asyncStarted())
                     .andReturn();
@@ -424,7 +550,7 @@ class JobPostControllerTest {
         void testGetJobPost_InvalidUUIDPath_Returns400() throws Exception {
             String badId = "not-a-uuid";
 
-            mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/v1/sgjm/jobpost/" + badId)
+            mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/" + badId)
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isBadRequest());
         }
