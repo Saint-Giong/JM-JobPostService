@@ -2,7 +2,7 @@ spring:
   application:
     name: jobmanager
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:jobpost-db}
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:jobpost_db}
     username: ${DB_USER:postgres}
     password: ${DB_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
@@ -11,3 +11,20 @@ spring:
       ddl-auto: update
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     show-sql: true
+
+kafka:
+  # CONFLUENT CLOUD + REGISTRY SCHEMA
+  cloud:
+    bootstrap-servers: ${CLOUDKAFKA_BROKERS}
+    security:
+      api-key: ${CLOUDKAFKA_API_KEY}
+      api-secret: ${CLOUDKAFKA_API_SECRET}
+    schema-registry:
+      url: ${SCHEMA_REGISTRY_URL}
+      api-key: ${SCHEMA_REGISTRY_KEY}
+      api-secret: ${SCHEMA_REGISTRY_SECRET}
+
+  # LOCAL DOCKER
+  local:
+    bootstrap-servers: localhost:9092
+    group-id: local-backend-group
