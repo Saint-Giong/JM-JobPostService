@@ -58,7 +58,8 @@ public class CloudKafkaConsumerConfig {
     public ConcurrentMessageListenerContainer<String, Object> cloudKafkaReplyContainer(
             @Qualifier("cloudConsumerFactory") ConsumerFactory<String, Object> consumerFactory) {
 
-        ContainerProperties containerProperties = new ContainerProperties(KafkaTopic.JOB_POST_UPDATED_REPLY_TOPIC);
+        ContainerProperties containerProperties = new ContainerProperties(
+                KafkaTopic.JOB_POST_UPDATED_REPLY_TOPIC);
 
         // FIX: Unique Group ID per instance prevents "reply stealing"
         String uniqueGroupId = "reply-group-" + UUID.randomUUID();

@@ -26,5 +26,6 @@ kafka:
 
   # LOCAL DOCKER
   local:
-    bootstrap-servers: localhost:9092
-    group-id: local-backend-group
+    bootstrap-servers: kafka:9092
+    group-id: jobpost-service-consumer-group
+    schema-registry: http://schema-registry:9091
