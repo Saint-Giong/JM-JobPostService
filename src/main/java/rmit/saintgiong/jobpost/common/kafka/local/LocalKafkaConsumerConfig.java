@@ -1,0 +1,88 @@
+package rmit.saintgiong.jobpost.common.kafka.local;
+
+import io.confluent.kafka.serializers.KafkaAvroDeserializer;
+import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.common.serialization.StringDeserializer;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
+import org.springframework.kafka.core.ConsumerFactory;
+import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.core.ProducerFactory;
+import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
+import org.springframework.kafka.listener.ContainerProperties;
+import org.springframework.kafka.requestreply.ReplyingKafkaTemplate;
+import rmit.saintgiong.jobpost.api.internal.type.KafkaTopic;
+
+import java.time.Duration;
+import java.util.Map;
+import java.util.UUID;
+
+@Configuration
+public class LocalKafkaConsumerConfig {
+
+    private final LocalKafkaConfig localKafkaConfig;
+
+    public LocalKafkaConsumerConfig(LocalKafkaConfig localKafkaConfig) {
+        this.localKafkaConfig = localKafkaConfig;
+    }
+
+    @Bean(name = "localConsumerFactory")
+    public ConsumerFactory<String, Object> localConsumerFactory() {
+        Map<String, Object> config = localKafkaConfig.getLocalConfigs();
+
+        config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, KafkaAvroDeserializer.class);
+
+        // Crucial for mapping Avro to your Java DTOs
+        config.put(KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG, true);
+
+        // "earliest" ensures you don't miss messages if the app starts fresh
+        config.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+
+        return new DefaultKafkaConsumerFactory<>(config);
+    }
+
+    @Bean(name = "localKafkaListenerContainerFactory")
+    public ConcurrentKafkaListenerContainerFactory<String, Object> localKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, Object> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(localConsumerFactory());
+        return factory;
+    }
+
+    // --- REQUEST-REPLY CONFIGURATION ---
+
+    @Bean
+    public ConcurrentMessageListenerContainer<String, Object> localKafkaReplyContainer(
+            @Qualifier("localConsumerFactory") ConsumerFactory<String, Object> consumerFactory) {
+
+        ContainerProperties containerProperties = new ContainerProperties(KafkaTopic.JOB_POST_UPDATED_REPLY_TOPIC);
+
+        // FIX: Unique Group ID per instance prevents "reply stealing"
+        String uniqueGroupId = "reply-group-" + UUID.randomUUID();
+        containerProperties.setGroupId(uniqueGroupId);
+
+        // Optimization: Replies are ephemeral; we don't need to commit offsets strictly
+//        containerProperties.setAckMode(ContainerProperties.AckMode.RECORD);
+
+        return new ConcurrentMessageListenerContainer<>(consumerFactory, containerProperties);
+    }
+
+    @Bean
+    public ReplyingKafkaTemplate<String, Object, Object> localReplyingKafkaTemplate(
+            @Qualifier("localProducerFactory") ProducerFactory<String, Object> pf,
+            @Qualifier("localKafkaReplyContainer") ConcurrentMessageListenerContainer<String, Object> replyContainer) {
+
+        ReplyingKafkaTemplate<String, Object, Object> template = new ReplyingKafkaTemplate<>(pf, replyContainer);
+
+        // Timeout: If the other service takes > 10s, throw an error
+        template.setDefaultReplyTimeout(Duration.ofSeconds(10));
+
+        // Ensure shared reply topic headers are handled correctly
+        template.setSharedReplyTopic(true);
+
+        return template;
+    }
+}
