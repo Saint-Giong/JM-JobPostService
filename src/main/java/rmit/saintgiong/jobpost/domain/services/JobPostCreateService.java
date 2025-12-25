@@ -4,7 +4,6 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.kafka.requestreply.ReplyingKafkaTemplate;
 import org.springframework.kafka.requestreply.RequestReplyFuture;
@@ -23,6 +22,8 @@ import rmit.saintgiong.jobpost.api.internal.dto.avro.JobPostUpdateSentRecord;
 import rmit.saintgiong.jobpost.api.internal.dto.avro.JobPostUpdateResponseRecord;
 
 import java.time.ZoneOffset;
+import java.util.ArrayList;
+
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -30,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class JobPostCreateService implements CreateJobPostInterface {
 
-    private final JobPostMapper mapper;
+    private final JobPostMapper jobPostMapper;
 
     private final JobPostRepository repository;
 
@@ -47,10 +48,16 @@ public class JobPostCreateService implements CreateJobPostInterface {
         createValidator.validate(request);
 
         // Map from create request DTO to domain model
-        var newJob = mapper.fromCreateCommand(request);
+        var newJob = jobPostMapper.fromCreateCommand(request);
 
         // Map from domain model to persistence entity
-        JobPostEntity entity = mapper.toEntity(newJob);
+        JobPostEntity entity = jobPostMapper.toEntity(newJob);
+        
+        // Handle skill tags
+        if (newJob.getSkillTagIds() != null) {
+            newJob.getSkillTagIds().forEach(entity::addSkillTag);
+        }
+
         log.info("method=createJobPost, message=Mapped job post entity, entity={}", entity);
 
         // Persist the new job post
@@ -63,7 +70,7 @@ public class JobPostCreateService implements CreateJobPostInterface {
                 .setTitle(saved.getTitle())
                 .setDescription(saved.getDescription())
                 .setCity(saved.getCity())
-                .setEmploymentType(saved.getEmploymentType())
+                .setEmploymentType(new ArrayList<>(jobPostMapper.mapBitSetToStrings(saved.getEmploymentType())))
                 .setSalaryTitle(saved.getSalaryTitle())
                 .setSalaryMin(saved.getSalaryMin())
                 .setSalaryMax(saved.getSalaryMax())
@@ -72,6 +79,11 @@ public class JobPostCreateService implements CreateJobPostInterface {
                 .setPublished(saved.isPublished())
                 .setCountry(saved.getCountry())
                 .setCompanyId(saved.getCompanyId())
+                .setSkillTagIds(saved.getSkillTags() != null
+                        ? saved.getSkillTags().stream()
+                            .map(tag -> tag.getSkillTagId().getTagId())
+                            .collect(java.util.stream.Collectors.toList())
+                        : java.util.Collections.emptyList())
                 .build();
 
         ProducerRecord<String, Object> kafkaRequest = new ProducerRecord<>(KafkaTopic.JOB_POST_UPDATED_TOPIC, jobPostUpdateSentRecord);

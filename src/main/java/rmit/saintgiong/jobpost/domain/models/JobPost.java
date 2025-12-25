@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.UUID;
 
 @Builder
@@ -19,7 +20,7 @@ public class JobPost {
 
     private String city;
 
-    private String employmentType;
+    private Set<String> employmentTypes;
 
     private String salaryTitle;
 
@@ -36,4 +37,6 @@ public class JobPost {
     private String country;
 
     private UUID companyId;
+
+    private Set<Integer> skillTagIds;
 }

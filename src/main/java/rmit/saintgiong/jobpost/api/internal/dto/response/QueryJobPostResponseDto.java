@@ -4,15 +4,19 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Data
 @Builder
+@lombok.AllArgsConstructor
+@lombok.NoArgsConstructor
 public class QueryJobPostResponseDto {
     private String id;
     private String title;
     private String description;
     private String city;
-    private String employmentType;
+    private Set<String> employmentTypes;
+    private Set<Integer> skillTagIds;
     private String salaryTitle;
     private Double salaryMin;
     private Double salaryMax;

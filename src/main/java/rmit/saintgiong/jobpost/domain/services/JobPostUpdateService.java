@@ -20,6 +20,8 @@ import rmit.saintgiong.jobpost.domain.repositories.entities.JobPostEntity;
 import rmit.saintgiong.jobpost.domain.validators.JobPostUpdateValidator;
 
 import java.time.ZoneOffset;
+import java.util.ArrayList;
+
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -34,7 +36,7 @@ import static rmit.saintgiong.jobpost.common.exception.DomainCode.RESOURCE_NOT_F
 @Slf4j
 public class JobPostUpdateService implements UpdateJobPostInterface {
 
-    private final JobPostMapper mapper;
+    private final JobPostMapper jobPostMapper;
     private final JobPostRepository repository;
     private final JobPostUpdateValidator updateValidator;
 
@@ -54,11 +56,17 @@ public class JobPostUpdateService implements UpdateJobPostInterface {
         JobPostEntity existing = repository.findById(uuid).orElseThrow(() ->
                 new DomainException(RESOURCE_NOT_FOUND, "Job post with ID '" + id + "' does not exist"));
 
-        JobPost updatedModel = mapper.fromUpdateCommand(requestDto);
+        JobPost updatedModel = jobPostMapper.fromUpdateCommand(requestDto);
         updatedModel.setId(existing.getId());
         updatedModel.setPostedDate(existing.getPostedDate());
 
-        JobPostEntity updatedEntity = mapper.toEntity(updatedModel);
+        JobPostEntity updatedEntity = jobPostMapper.toEntity(updatedModel);
+        
+        // Handle skill tags
+        if (updatedModel.getSkillTagIds() != null) {
+            updatedModel.getSkillTagIds().forEach(updatedEntity::addSkillTag);
+        }
+
         JobPostEntity saved = repository.saveAndFlush(updatedEntity);
 
         JobPostUpdateSentRecord jobPostUpdateSentRecord = JobPostUpdateSentRecord.newBuilder()
@@ -67,7 +75,7 @@ public class JobPostUpdateService implements UpdateJobPostInterface {
                 .setTitle(saved.getTitle())
                 .setDescription(saved.getDescription())
                 .setCity(saved.getCity())
-                .setEmploymentType(saved.getEmploymentType())
+                .setEmploymentType(new ArrayList<>(jobPostMapper.mapBitSetToStrings(saved.getEmploymentType())))
                 .setSalaryTitle(saved.getSalaryTitle())
                 .setSalaryMin(saved.getSalaryMin())
                 .setSalaryMax(saved.getSalaryMax())
@@ -76,6 +84,11 @@ public class JobPostUpdateService implements UpdateJobPostInterface {
                 .setPublished(saved.isPublished())
                 .setCountry(saved.getCountry())
                 .setCompanyId(saved.getCompanyId())
+                .setSkillTagIds(saved.getSkillTags() != null
+                        ? saved.getSkillTags().stream()
+                            .map(tag -> tag.getSkillTagId().getTagId())
+                            .collect(java.util.stream.Collectors.toList())
+                        : java.util.Collections.emptyList())
                 .build();
 
         ProducerRecord<String, Object> kafkaRequest = new ProducerRecord<>(KafkaTopic.JOB_POST_UPDATED_TOPIC, jobPostUpdateSentRecord);
@@ -87,7 +100,7 @@ public class JobPostUpdateService implements UpdateJobPostInterface {
             ConsumerRecord<String, Object> response = responseRecord.get(10, TimeUnit.SECONDS);
 
             Object responseValue = response.value();
-            if (responseValue instanceof rmit.saintgiong.jobpost.api.internal.dto.avro.JobPostUpdateResponseRecord jobpostRespose) {
+            if (responseValue instanceof JobPostUpdateResponseRecord jobpostRespose) {
                 log.info(
                         "Success");
             } else {

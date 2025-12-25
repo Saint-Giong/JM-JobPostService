@@ -1,14 +1,16 @@
 package rmit.saintgiong.jobpost.domain.repositories.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.BitSet;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
+
+
 
 @Entity
 @Table(name = "job_post")
@@ -16,6 +18,7 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = "skillTags")
 public class JobPostEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -32,7 +35,7 @@ public class JobPostEntity {
     private String city;
 
     @Column(name = "employment_type")
-    private String employmentType;
+    private BitSet employmentType;
 
     @Column(name = "salary_title")
     private String salaryTitle;
@@ -58,5 +61,19 @@ public class JobPostEntity {
 
     @Column(name = "companyid")
     private UUID companyId;
+
+    @OneToMany(mappedBy = "jobPost", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<JobPost_SkillTagEntity> skillTags;
+
+    public void addSkillTag(Integer tagId) {
+        JobPost_SkillTagEntity skillTagEntity = new JobPost_SkillTagEntity(this, tagId);
+
+        if (this.skillTags == null) {
+            this.skillTags = new HashSet<>();
+        }
+
+        this.skillTags.add(skillTagEntity);
+        skillTagEntity.setJobPost(this);
+    }
 }
 

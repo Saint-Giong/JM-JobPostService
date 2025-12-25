@@ -30,6 +30,8 @@ public class UpdateJobPostRequestDto {
 
     private Double salaryMax;
 
+    private Set<Integer> skillTagIds;
+
     @NotNull
     private LocalDateTime expiryDate;
 
