@@ -28,7 +28,7 @@
         },
         {
           "name": "employmentType",
-          "type": ["null", "string"],
+          "type": ["null", {"type": "array", "items": "string"}],
           "default": null
         },
         {
@@ -88,6 +88,11 @@
               "logicalType": "uuid"
             }
           ],
+          "default": null
+        },
+        {
+          "name": "skillTagIds",
+          "type": ["null", {"type": "array", "items": "int"}],
           "default": null
         }
     ]

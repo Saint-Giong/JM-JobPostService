@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 import rmit.saintgiong.jobpost.domain.repositories.entities.JobPost_SkillTagEntity;
 import rmit.saintgiong.jobpost.api.internal.type.EmploymentTypeEnum;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring" )
 public abstract class JobPostMapper {
 
     @Mapping(target = "id", ignore = true)

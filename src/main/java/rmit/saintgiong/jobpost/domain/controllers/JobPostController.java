@@ -1,7 +1,6 @@
 package rmit.saintgiong.jobpost.domain.controllers;
 
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
 import org.hibernate.validator.constraints.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +24,6 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 @RestController
-@AllArgsConstructor
 public class JobPostController {
 
     private final CreateJobPostInterface createService;
@@ -35,6 +33,13 @@ public class JobPostController {
     private final DeleteJobPostInterface deleteService;
 
     private final QueryJobPostInterface queryService;
+
+    public JobPostController(CreateJobPostInterface createService, UpdateJobPostInterface updateService, DeleteJobPostInterface deleteService, QueryJobPostInterface queryService) {
+        this.createService = createService;
+        this.updateService = updateService;
+        this.deleteService = deleteService;
+        this.queryService = queryService;
+    }
 
     @PostMapping
     public Callable<ResponseEntity<CreateJobPostResponseDto>> createJobPost(@Valid @RequestBody CreateJobPostRequestDto requestDto) {

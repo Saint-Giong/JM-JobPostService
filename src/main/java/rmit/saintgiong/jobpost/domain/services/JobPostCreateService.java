@@ -1,7 +1,6 @@
 package rmit.saintgiong.jobpost.domain.services;
 
 import jakarta.transaction.Transactional;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -27,7 +26,6 @@ import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 @Service
-@AllArgsConstructor
 @Slf4j
 public class JobPostCreateService implements CreateJobPostInterface {
 
@@ -38,6 +36,13 @@ public class JobPostCreateService implements CreateJobPostInterface {
     private final JobPostCreateValidator createValidator;
 
     private final ReplyingKafkaTemplate<String, Object, Object> cloudReplyingKafkaTemplate;
+
+    public JobPostCreateService(JobPostMapper jobPostMapper, JobPostRepository repository, JobPostCreateValidator createValidator, ReplyingKafkaTemplate<String, Object, Object> cloudReplyingKafkaTemplate) {
+        this.jobPostMapper = jobPostMapper;
+        this.repository = repository;
+        this.createValidator = createValidator;
+        this.cloudReplyingKafkaTemplate = cloudReplyingKafkaTemplate;
+    }
 
     @Override
     @Transactional

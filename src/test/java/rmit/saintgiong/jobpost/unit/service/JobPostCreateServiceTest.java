@@ -65,6 +65,7 @@
 //                .country("AU")
 //                .expiryDate(java.time.LocalDateTime.now().plusDays(30))
 //                .published(Boolean.FALSE)
+//                .skillTagIds(Set.of(1, 2, 3))
 //                .build();
 //
 //        jobPost = JobPost.builder()
@@ -78,6 +79,8 @@
 //                .expiryDate(requestDto.getExpiryDate())
 //                .published(requestDto.isPublished())
 //                .country(requestDto.getCountry())
+//                .companyId(UUID.fromString(requestDto.getCompanyId()))
+//                .skillTagIds(requestDto.getSkillTagIds())
 //                .build();
 //    }
 //
@@ -96,6 +99,7 @@
 //                .expiryDate(jobPost.getExpiryDate())
 //                .published(jobPost.isPublished())
 //                .country(jobPost.getCountry())
+//                .companyId(jobPost.getCompanyId())
 //                .build();
 //
 //        JobPostEntity savedEntity = JobPostEntity.builder()
@@ -110,6 +114,7 @@
 //                .expiryDate(toSave.getExpiryDate())
 //                .published(toSave.isPublished())
 //                .country(toSave.getCountry())
+//                .companyId(toSave.getCompanyId())
 //                .postedDate(java.time.LocalDateTime.now())
 //                .build();
 //

@@ -1,7 +1,6 @@
 package rmit.saintgiong.jobpost.domain.services;
 
 import jakarta.transaction.Transactional;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -32,7 +31,6 @@ import rmit.saintgiong.jobpost.api.internal.dto.avro.JobPostUpdateResponseRecord
 import static rmit.saintgiong.jobpost.common.exception.DomainCode.RESOURCE_NOT_FOUND;
 
 @Service
-@AllArgsConstructor
 @Slf4j
 public class JobPostUpdateService implements UpdateJobPostInterface {
 
@@ -41,6 +39,13 @@ public class JobPostUpdateService implements UpdateJobPostInterface {
     private final JobPostUpdateValidator updateValidator;
 
     private final ReplyingKafkaTemplate<String, Object, Object> cloudReplyingKafkaTemplate;
+
+    public JobPostUpdateService(JobPostMapper jobPostMapper, JobPostRepository repository, JobPostUpdateValidator updateValidator, ReplyingKafkaTemplate<String, Object, Object> cloudReplyingKafkaTemplate) {
+        this.jobPostMapper = jobPostMapper;
+        this.repository = repository;
+        this.updateValidator = updateValidator;
+        this.cloudReplyingKafkaTemplate = cloudReplyingKafkaTemplate;
+    }
 
     @Override
     @Transactional
