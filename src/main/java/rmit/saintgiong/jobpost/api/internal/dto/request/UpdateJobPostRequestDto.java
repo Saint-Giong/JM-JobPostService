@@ -8,6 +8,7 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @Builder
@@ -21,7 +22,7 @@ public class UpdateJobPostRequestDto {
     @NotBlank
     private String city;
 
-    private String employmentType;
+    private Set<String> employmentTypes;
 
     private String salaryTitle;
 
