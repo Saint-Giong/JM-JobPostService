@@ -68,7 +68,6 @@ public class JobPostCreateService implements CreateJobPostInterface {
 
         log.info("method=createJobPost, message=Successfully created job post, id={}", saved.getId());
         JobPostUpdateSentRecord jobPostUpdateSentRecord = JobPostUpdateSentRecord.newBuilder()
-                .setAction("added")
                 .setId(saved.getId())
                 .setTitle(saved.getTitle())
                 .setDescription(saved.getDescription())
@@ -89,8 +88,8 @@ public class JobPostCreateService implements CreateJobPostInterface {
                         : java.util.Collections.emptyList())
                 .build();
 
-        ProducerRecord<String, Object> kafkaRequest = new ProducerRecord<>(KafkaTopic.JOB_POST_UPDATED_TOPIC, jobPostUpdateSentRecord);
-        kafkaRequest.headers().add(KafkaHeaders.REPLY_TOPIC, KafkaTopic.JOB_POST_UPDATED_REPLY_TOPIC.getBytes());
+        ProducerRecord<String, Object> kafkaRequest = new ProducerRecord<>(KafkaTopic.JOB_POST_ADDED_TOPIC, jobPostUpdateSentRecord);
+        kafkaRequest.headers().add(KafkaHeaders.REPLY_TOPIC, KafkaTopic.JOB_POST_ADDED_REPLY_TOPIC.getBytes());
 
         try {
             RequestReplyFuture<String, Object, Object> responseRecord = cloudReplyingKafkaTemplate.sendAndReceive(kafkaRequest);

@@ -6,7 +6,6 @@ import rmit.saintgiong.jobpost.common.exception.DomainException;
 import rmit.saintgiong.jobpost.domain.repositories.JobPostRepository;
 import rmit.saintgiong.jobpost.domain.repositories.entities.JobPostEntity;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @Component

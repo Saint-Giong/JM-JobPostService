@@ -72,7 +72,6 @@ public class JobPostUpdateService implements UpdateJobPostInterface {
         JobPostEntity saved = repository.saveAndFlush(updatedEntity);
 
         JobPostUpdateSentRecord jobPostUpdateSentRecord = JobPostUpdateSentRecord.newBuilder()
-                .setAction("updated")
                 .setId(saved.getId())
                 .setTitle(saved.getTitle())
                 .setDescription(saved.getDescription())

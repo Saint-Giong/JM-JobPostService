@@ -4,10 +4,6 @@
     "name": "JobPostUpdateSentRecord",
     "fields": [
         {
-            "name": "action",
-            "type": "string"
-        },
-        {
           "name": "id",
           "type": {
             "type": "string",
