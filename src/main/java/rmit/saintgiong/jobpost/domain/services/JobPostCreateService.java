@@ -53,14 +53,12 @@ public class JobPostCreateService implements CreateJobPostInterface {
         createValidator.validate(request);
 
         // Map from create request DTO to domain model
-        var newJob = jobPostMapper.fromCreateCommand(request);
+        JobPostEntity entity  = jobPostMapper.fromCreateCommand(request);
 
-        // Map from domain model to persistence entity
-        JobPostEntity entity = jobPostMapper.toEntity(newJob);
-        
+
         // Handle skill tags
-        if (newJob.getSkillTagIds() != null) {
-            newJob.getSkillTagIds().forEach(entity::addSkillTag);
+        if (request.getSkillTagIds() != null) {
+            request.getSkillTagIds().forEach(entity::addSkillTag);
         }
 
         log.info("method=createJobPost, message=Mapped job post entity, entity={}", entity);

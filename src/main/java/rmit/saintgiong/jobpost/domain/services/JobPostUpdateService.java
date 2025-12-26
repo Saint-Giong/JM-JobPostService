@@ -13,7 +13,6 @@ import rmit.saintgiong.jobpost.api.internal.dto.request.UpdateJobPostRequestDto;
 import rmit.saintgiong.jobpost.api.internal.type.KafkaTopic;
 import rmit.saintgiong.jobpost.common.exception.DomainException;
 import rmit.saintgiong.jobpost.domain.mappers.JobPostMapper;
-import rmit.saintgiong.jobpost.domain.models.JobPost;
 import rmit.saintgiong.jobpost.domain.repositories.JobPostRepository;
 import rmit.saintgiong.jobpost.domain.repositories.entities.JobPostEntity;
 import rmit.saintgiong.jobpost.domain.validators.JobPostUpdateValidator;
@@ -61,15 +60,13 @@ public class JobPostUpdateService implements UpdateJobPostInterface {
         JobPostEntity existing = repository.findById(uuid).orElseThrow(() ->
                 new DomainException(RESOURCE_NOT_FOUND, "Job post with ID '" + id + "' does not exist"));
 
-        JobPost updatedModel = jobPostMapper.fromUpdateCommand(requestDto);
-        updatedModel.setId(existing.getId());
-        updatedModel.setPostedDate(existing.getPostedDate());
+        JobPostEntity updatedEntity = jobPostMapper.fromUpdateCommand(requestDto);
+        updatedEntity.setId(existing.getId());
+        updatedEntity.setPostedDate(existing.getPostedDate());
 
-        JobPostEntity updatedEntity = jobPostMapper.toEntity(updatedModel);
-        
         // Handle skill tags
-        if (updatedModel.getSkillTagIds() != null) {
-            updatedModel.getSkillTagIds().forEach(updatedEntity::addSkillTag);
+        if (requestDto.getSkillTagIds() != null) {
+            requestDto.getSkillTagIds().forEach(updatedEntity::addSkillTag);
         }
 
         JobPostEntity saved = repository.saveAndFlush(updatedEntity);
