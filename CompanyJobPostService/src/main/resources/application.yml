@@ -1,0 +1,73 @@
+server:
+  port: ${SERVER_PORT:8183}
+
+spring:
+  application:
+    name: jobpost-service
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5535/jobpost_db}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  profiles:
+    default: local
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  health:
+    readinessstate:
+      enabled: true
+    livenessstate:
+      enabled: true
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8070/eureka}
+
+springdoc:
+  api-docs:
+    path: /api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    operations-sorter: method
+    tags-sorter: alpha
+  show-actuator: false
+
+kafka:
+  # CONFLUENT CLOUD + REGISTRY SCHEMA
+  cloud:
+    bootstrap-servers: ${CLOUDKAFKA_BROKERS}
+    security:
+      api-key: ${CLOUDKAFKA_API_KEY}
+      api-secret: ${CLOUDKAFKA_API_SECRET}
+    schema-registry:
+      url: ${SCHEMA_REGISTRY_URL}
+      api-key: ${SCHEMA_REGISTRY_KEY}
+      api-secret: ${SCHEMA_REGISTRY_SECRET}
+
+  # LOCAL DOCKER
+  local:
+    bootstrap-servers: kafka:9092
+    group-id: jobpost-service-consumer-group
+    schema-registry: http://schema-registry:9091

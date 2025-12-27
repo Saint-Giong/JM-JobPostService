@@ -1,0 +1,95 @@
+{
+    "namespace": "rmit.saintgiong.jobpost.api.internal.dto.avro",
+    "type": "record",
+    "name": "JobPostUpdateSentRecord",
+    "fields": [
+        {
+          "name": "id",
+          "type": {
+            "type": "string",
+            "logicalType": "uuid"
+          }
+        },
+        {
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "name": "description",
+          "type": "string"
+        },
+        {
+          "name": "city",
+          "type": "string"
+        },
+        {
+          "name": "employmentType",
+          "type": ["null", {"type": "array", "items": "string"}],
+          "default": null
+        },
+        {
+          "name": "salaryTitle",
+          "type": ["null", "string"],
+          "default": null
+        },
+        {
+          "name": "salaryMin",
+          "type": ["null", "double"],
+          "default": null
+        },
+        {
+          "name": "salaryMax",
+          "type": ["null", "double"],
+          "default": null
+        },
+        {
+          "name": "postedDate",
+          "type": [
+            "null",
+            {
+              "type": "long",
+              "logicalType": "timestamp-millis"
+            }
+          ],
+          "default": null,
+          "doc": "LocalDateTime converted to epoch millis"
+        },
+        {
+          "name": "expiryDate",
+          "type": [
+            "null",
+            {
+              "type": "long",
+              "logicalType": "timestamp-millis"
+            }
+          ],
+          "default": null
+        },
+        {
+          "name": "published",
+          "type": "boolean",
+          "doc": "Primitive boolean, cannot be null"
+        },
+        {
+          "name": "country",
+          "type": ["null", "string"],
+          "default": null
+        },
+        {
+          "name": "companyId",
+          "type": [
+            "null",
+            {
+              "type": "string",
+              "logicalType": "uuid"
+            }
+          ],
+          "default": null
+        },
+        {
+          "name": "skillTagIds",
+          "type": ["null", {"type": "array", "items": "int"}],
+          "default": null
+        }
+    ]
+}
