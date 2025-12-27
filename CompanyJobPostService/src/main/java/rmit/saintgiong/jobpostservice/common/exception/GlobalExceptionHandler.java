@@ -18,8 +18,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static rmit.saintgiong.jobpost.common.exception.DomainCode.INTERNAL_SERVER_ERROR;
-import static rmit.saintgiong.jobpost.common.exception.DomainCode.INVALID_REQUEST_PARAMETER;
+import static rmit.saintgiong.jobpostservice.common.exception.DomainCode.INTERNAL_SERVER_ERROR;
+import static rmit.saintgiong.jobpostservice.common.exception.DomainCode.INVALID_REQUEST_PARAMETER;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler extends BaseExceptionHandler {
