@@ -8,65 +8,69 @@ import org.springframework.kafka.requestreply.ReplyingKafkaTemplate;
 import org.springframework.kafka.requestreply.RequestReplyFuture;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.stereotype.Service;
-import rmit.saintgiong.jobpost.api.internal.dto.avro.JobPostUpdateResponseRecord;
-import rmit.saintgiong.jobpost.api.internal.dto.avro.JobPostUpdateSentRecord;
-import rmit.saintgiong.jobpostapi.internal.common.dto.request.CreateJobPostRequestDto;
-import rmit.saintgiong.jobpostapi.internal.common.dto.response.CreateJobPostResponseDto;
+
+import rmit.saintgiong.jobpostapi.internal.common.dto.request.UpdateJobPostRequestDto;
 import rmit.saintgiong.jobpostapi.internal.common.type.KafkaTopic;
-import rmit.saintgiong.jobpostapi.internal.services.CreateJobPostInterface;
-import rmit.saintgiong.jobpostservice.domain.mappers.JobPostMapper;
+import rmit.saintgiong.jobpostapi.internal.dto.avro.JobPostUpdateResponseRecord;
+import rmit.saintgiong.jobpostapi.internal.dto.avro.JobPostUpdateSentRecord;
+import rmit.saintgiong.jobpostapi.internal.services.UpdateJobPostInterface;
+import rmit.saintgiong.jobpostservice.common.exception.DomainException;
 import rmit.saintgiong.jobpostservice.domain.repositories.JobPostRepository;
 import rmit.saintgiong.jobpostservice.domain.repositories.entities.JobPostEntity;
-import rmit.saintgiong.jobpostservice.domain.validators.JobPostCreateValidator;
-
-
+import rmit.saintgiong.jobpostservice.domain.validators.JobPostUpdateValidator;
+import rmit.saintgiong.jobpostservice.domain.mappers.JobPostMapper;
+import rmit.saintgiong.jobpostapi.internal.common.type.DomainCode;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+
+import static rmit.saintgiong.jobpostapi.internal.common.type.DomainCode.RESOURCE_NOT_FOUND;
+
 
 @Service
 @Slf4j
-public class JobPostCreateService implements CreateJobPostInterface {
+public class JobPostUpdateService implements UpdateJobPostInterface {
 
     private final JobPostMapper jobPostMapper;
-
     private final JobPostRepository repository;
-
-    private final JobPostCreateValidator createValidator;
+    private final JobPostUpdateValidator updateValidator;
 
     private final ReplyingKafkaTemplate<String, Object, Object> cloudReplyingKafkaTemplate;
 
-    public JobPostCreateService(JobPostMapper jobPostMapper, JobPostRepository repository, JobPostCreateValidator createValidator, ReplyingKafkaTemplate<String, Object, Object> cloudReplyingKafkaTemplate) {
+    public JobPostUpdateService(JobPostMapper jobPostMapper, JobPostRepository repository, JobPostUpdateValidator updateValidator, ReplyingKafkaTemplate<String, Object, Object> cloudReplyingKafkaTemplate) {
         this.jobPostMapper = jobPostMapper;
         this.repository = repository;
-        this.createValidator = createValidator;
+        this.updateValidator = updateValidator;
         this.cloudReplyingKafkaTemplate = cloudReplyingKafkaTemplate;
     }
 
     @Override
     @Transactional
-    public CreateJobPostResponseDto createJobPost(CreateJobPostRequestDto request) {
-        log.info("method=createJobPost, message=Start creating job post, param={}", request);
+    public void updateJobPost(String id, UpdateJobPostRequestDto requestDto) {
+        log.info("method=updateJobPost, message=Start updating job post, id={}, param={}", id, requestDto);
 
-        // Validate business rules
-        createValidator.validate(request);
+        UUID uuid = UUID.fromString(id);
 
-        // Map from create request DTO to domain model
-        JobPostEntity entity  = jobPostMapper.fromCreateCommand(request);
+        // Validate
+        updateValidator.validate(requestDto);
 
+        // Find existing job post
+        JobPostEntity existing = repository.findById(uuid).orElseThrow(() ->
+                new DomainException(RESOURCE_NOT_FOUND, "Job post with ID '" + id + "' does not exist"));
+
+        JobPostEntity updatedEntity = jobPostMapper.fromUpdateCommand(requestDto);
+        updatedEntity.setId(existing.getId());
+        updatedEntity.setPostedDate(existing.getPostedDate());
 
         // Handle skill tags
-        if (request.getSkillTagIds() != null) {
-            request.getSkillTagIds().forEach(entity::addSkillTag);
+        if (requestDto.getSkillTagIds() != null) {
+            requestDto.getSkillTagIds().forEach(updatedEntity::addSkillTag);
         }
 
-        log.info("method=createJobPost, message=Mapped job post entity, entity={}", entity);
+        JobPostEntity saved = repository.saveAndFlush(updatedEntity);
 
-        // Persist the new job post
-        JobPostEntity saved = repository.saveAndFlush(entity);
-
-        log.info("method=createJobPost, message=Successfully created job post, id={}", saved.getId());
         JobPostUpdateSentRecord jobPostUpdateSentRecord = JobPostUpdateSentRecord.newBuilder()
                 .setId(saved.getId())
                 .setTitle(saved.getTitle())
@@ -88,8 +92,8 @@ public class JobPostCreateService implements CreateJobPostInterface {
                         : java.util.Collections.emptyList())
                 .build();
 
-        ProducerRecord<String, Object> kafkaRequest = new ProducerRecord<>(KafkaTopic.JOB_POST_ADDED_TOPIC, jobPostUpdateSentRecord);
-        kafkaRequest.headers().add(KafkaHeaders.REPLY_TOPIC, KafkaTopic.JOB_POST_ADDED_REPLY_TOPIC.getBytes());
+        ProducerRecord<String, Object> kafkaRequest = new ProducerRecord<>(KafkaTopic.JOB_POST_UPDATED_TOPIC, jobPostUpdateSentRecord);
+        kafkaRequest.headers().add(KafkaHeaders.REPLY_TOPIC, KafkaTopic.JOB_POST_UPDATED_REPLY_TOPIC.getBytes());
 
         try {
             RequestReplyFuture<String, Object, Object> responseRecord = cloudReplyingKafkaTemplate.sendAndReceive(kafkaRequest);
@@ -108,10 +112,6 @@ public class JobPostCreateService implements CreateJobPostInterface {
             log.error("Error while sending");
         }
 
-
-        // Build and return the response DTO
-        return CreateJobPostResponseDto.builder()
-                .id(String.valueOf(saved.getId()))
-                .build();
+        log.info("method=updateJobPost, message=Successfully updated job post, id={}", saved.getId());
     }
 }

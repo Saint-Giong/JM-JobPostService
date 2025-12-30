@@ -9,8 +9,8 @@
         <relativePath/>
     </parent>
     <modules>
-        <module>CompanyJobPostApi</module>
-        <module>CompanyJobPostService</module>
+        <module>JobPostApi</module>
+        <module>JobPostService</module>
     </modules>
     <groupId>rmit.saintgiong</groupId>
     <artifactId>jobpost</artifactId>
