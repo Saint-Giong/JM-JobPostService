@@ -47,10 +47,6 @@ key:
   public-key-b64: ${PUBLIC_KEY_B64:}
   private-key-b64: ${PRIVATE_KEY_B64:}
 
-kafka:
-  kafka-host-url: ${KAFKA_HOST_URL:localhost:9192}
-  schema-registry-host-url: ${SCHEMA_REGISTRY_HOST_URL:http://localhost:9191}
-
 springdoc:
   api-docs:
     path: /api-docs
@@ -75,7 +71,5 @@ kafka:
       api-secret: ${SCHEMA_REGISTRY_SECRET}
 
   # LOCAL DOCKER
-  local:
-    bootstrap-servers: kafka:9092
-    group-id: jobpost-service-consumer-group
-    schema-registry: http://schema-registry:9091
+  kafka-host-url: ${KAFKA_HOST_URL:localhost:9192}
+  schema-registry-host-url: ${SCHEMA_REGISTRY_HOST_URL:http://localhost:9191}
