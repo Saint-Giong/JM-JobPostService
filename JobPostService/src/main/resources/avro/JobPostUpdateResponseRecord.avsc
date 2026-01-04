@@ -1,0 +1,15 @@
+{
+    "namespace": "rmit.saintgiong.jobpostapi.internal.dto.avro",
+    "type": "record",
+    "name": "JobPostUpdateResponseRecord",
+    "fields": [
+      {
+        "name": "success",
+        "type": "string"
+      },
+      {
+        "name": "message",
+        "type": "string"
+      }
+    ]
+}

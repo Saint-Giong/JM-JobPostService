@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
-import static rmit.saintgiong.jobpostservice.common.exception.DomainCode.RESOURCE_NOT_FOUND;
+import static rmit.saintgiong.jobpostapi.internal.common.type.DomainCode.RESOURCE_NOT_FOUND;
 
 @ExtendWith(MockitoExtension.class)
 class JobPostQueryServiceTest {

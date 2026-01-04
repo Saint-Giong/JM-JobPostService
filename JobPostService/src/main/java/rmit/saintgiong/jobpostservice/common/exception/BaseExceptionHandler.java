@@ -1,6 +1,8 @@
 package rmit.saintgiong.jobpostservice.common.exception;
 
 import org.springframework.validation.ObjectError;
+import rmit.saintgiong.jobpostapi.internal.common.type.DomainCode;
+import rmit.saintgiong.jobpostapi.internal.common.type.ErrorLocation;
 
 import java.util.Collections;
 import java.util.List;

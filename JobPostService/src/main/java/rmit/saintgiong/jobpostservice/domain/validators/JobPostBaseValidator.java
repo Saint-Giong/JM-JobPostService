@@ -7,7 +7,9 @@ import rmit.saintgiong.jobpostservice.domain.repositories.entities.JobPostEntity
 
 import java.util.UUID;
 
-import static rmit.saintgiong.jobpostservice.common.exception.DomainCode.RESOURCE_NOT_FOUND;
+import rmit.saintgiong.jobpostapi.internal.common.type.DomainCode;
+
+import static rmit.saintgiong.jobpostapi.internal.common.type.DomainCode.RESOURCE_NOT_FOUND;
 
 @Component
 public class JobPostBaseValidator<T> extends BaseValidator<T> {

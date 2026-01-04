@@ -9,7 +9,7 @@ import rmit.saintgiong.jobpostservice.common.exception.DomainException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static rmit.saintgiong.jobpostservice.common.exception.DomainCode.INVALID_BUSINESS_LOGIC;
+import static rmit.saintgiong.jobpostapi.internal.common.type.DomainCode.INVALID_BUSINESS_LOGIC;
 
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

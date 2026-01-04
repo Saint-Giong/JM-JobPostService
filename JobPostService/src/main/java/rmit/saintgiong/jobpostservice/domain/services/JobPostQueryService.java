@@ -1,6 +1,5 @@
 package rmit.saintgiong.jobpostservice.domain.services;
 
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import rmit.saintgiong.jobpostapi.internal.common.dto.response.QueryJobPostResponseDto;
@@ -15,7 +14,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
-@AllArgsConstructor
 @Slf4j
 public class JobPostQueryService implements QueryJobPostInterface {
 
@@ -24,6 +22,12 @@ public class JobPostQueryService implements QueryJobPostInterface {
     private final JobPostBaseValidator<Void> baseValidator;
 
     private final JobPostRepository repository;
+
+    public JobPostQueryService(JobPostMapper mapper, JobPostBaseValidator<Void> baseValidator, JobPostRepository repository) {
+        this.mapper = mapper;
+        this.baseValidator = baseValidator;
+        this.repository = repository;
+    }
 
     @Override
     public QueryJobPostResponseDto getJobPostById(String id) {

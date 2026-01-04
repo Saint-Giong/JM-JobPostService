@@ -1,5 +1,7 @@
 package rmit.saintgiong.jobpostservice.common.exception;
 
+import rmit.saintgiong.jobpostapi.internal.common.type.DomainCode;
+
 public class DomainException extends RuntimeException {
 
     private final DomainCode code;

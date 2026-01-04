@@ -12,14 +12,16 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.validation.FieldError;
+import rmit.saintgiong.jobpostapi.internal.common.type.DomainCode;
+import rmit.saintgiong.jobpostapi.internal.common.type.ErrorLocation;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static rmit.saintgiong.jobpostservice.common.exception.DomainCode.INTERNAL_SERVER_ERROR;
-import static rmit.saintgiong.jobpostservice.common.exception.DomainCode.INVALID_REQUEST_PARAMETER;
+import static rmit.saintgiong.jobpostapi.internal.common.type.DomainCode.INTERNAL_SERVER_ERROR;
+import static rmit.saintgiong.jobpostapi.internal.common.type.DomainCode.INVALID_REQUEST_PARAMETER;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler extends BaseExceptionHandler {
