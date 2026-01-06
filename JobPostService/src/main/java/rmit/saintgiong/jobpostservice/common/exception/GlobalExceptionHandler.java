@@ -1,6 +1,8 @@
 package rmit.saintgiong.jobpostservice.common.exception;
 
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -10,11 +12,20 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.validation.FieldError;
 import rmit.saintgiong.jobpostapi.internal.common.type.DomainCode;
 import rmit.saintgiong.jobpostapi.internal.common.type.ErrorLocation;
+import rmit.saintgiong.jobpostservice.common.exception.domain.DomainException;
+import rmit.saintgiong.jobpostservice.common.exception.token.InvalidCredentialsException;
+import rmit.saintgiong.jobpostservice.common.exception.token.InvalidTokenException;
+import rmit.saintgiong.jobpostservice.common.exception.token.TokenExpiredException;
+import rmit.saintgiong.jobpostservice.common.exception.token.TokenReuseException;
+import rmit.saintgiong.shared.response.ErrorResponseDto;
+import rmit.saintgiong.shared.type.CookieType;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -29,9 +40,9 @@ public class GlobalExceptionHandler extends BaseExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiError> methodArgumentNotValidException(MethodArgumentNotValidException ex) {
-        List<ApiErrorDetails> errorDetails = ex.getBindingResult().getFieldErrors().stream()
-                .map(fe -> ApiErrorDetails.builder()
+    public ResponseEntity<rmit.saintgiong.jobpostapi.internal.common.dto.error.ApiError> methodArgumentNotValidException(MethodArgumentNotValidException ex) {
+        List<rmit.saintgiong.jobpostapi.internal.common.dto.error.ApiErrorDetails> errorDetails = ex.getBindingResult().getFieldErrors().stream()
+                .map(fe -> rmit.saintgiong.jobpostapi.internal.common.dto.error.ApiErrorDetails.builder()
                         .location(ErrorLocation.BODY)
                         .field(fe.getField())
                         .value(Objects.toString(fe.getRejectedValue(), ""))
@@ -45,7 +56,7 @@ public class GlobalExceptionHandler extends BaseExceptionHandler {
     }
 
     @ExceptionHandler(DomainException.class)
-    public ResponseEntity<ApiError> domainException(HttpServletRequest request, DomainException ex) {
+    public ResponseEntity<rmit.saintgiong.jobpostapi.internal.common.dto.error.ApiError> domainException(HttpServletRequest request, DomainException ex) {
         log.error("method=domainException, endPoint={}, exception={}", request.getRequestURI(), ex.getMessage());
 
         int httpCode = ex.getDomainCode().getCode() / 1000;
@@ -58,24 +69,24 @@ public class GlobalExceptionHandler extends BaseExceptionHandler {
     }
 
     @ExceptionHandler(MissingRequestHeaderException.class)
-    public ResponseEntity<ApiError> missingHeader(MissingRequestHeaderException ex) {
+    public ResponseEntity<rmit.saintgiong.jobpostapi.internal.common.dto.error.ApiError> missingHeader(MissingRequestHeaderException ex) {
         var errRes = getErrorResponse(DomainCode.MISSING_REQUEST_HEADER, String.format(DomainCode.MISSING_REQUEST_HEADER.getMessageTemplate(), ex.getHeaderName()), Collections.emptyList());
         return ResponseEntity.badRequest().body(errRes);
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<ApiError> httpRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex) {
+    public ResponseEntity<rmit.saintgiong.jobpostapi.internal.common.dto.error.ApiError> httpRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex) {
         var errRes = getErrorResponse(DomainCode.METHOD_NOT_ALLOWED, String.format(DomainCode.METHOD_NOT_ALLOWED.getMessageTemplate(), ex.getMethod()), Collections.emptyList());
         return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(errRes);
     }
 
     // Handle invalid parameter errors such as invalid UUID format or type mismatches
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ApiError> illegalArgument(IllegalArgumentException ex) {
+    public ResponseEntity<rmit.saintgiong.jobpostapi.internal.common.dto.error.ApiError> illegalArgument(IllegalArgumentException ex) {
         // This commonly happens when UUID.fromString is given an invalid value
         log.error("method=illegalArgument, exception={}", ex.getMessage(), ex);
 
-        ApiErrorDetails detail = ApiErrorDetails.builder()
+        rmit.saintgiong.jobpostapi.internal.common.dto.error.ApiErrorDetails detail = rmit.saintgiong.jobpostapi.internal.common.dto.error.ApiErrorDetails.builder()
                 .location(ErrorLocation.PARAMETER)
                 .issue(ex.getMessage())
                 .build();
@@ -88,7 +99,7 @@ public class GlobalExceptionHandler extends BaseExceptionHandler {
     }
 
     @ExceptionHandler(HandlerMethodValidationException.class)
-    public ResponseEntity<ApiError> handlerMethodValidationException(HandlerMethodValidationException ex) {
+    public ResponseEntity<rmit.saintgiong.jobpostapi.internal.common.dto.error.ApiError> handlerMethodValidationException(HandlerMethodValidationException ex) {
         // Handle both type mismatches (e.g. wrong parameter type) and method-level validation exceptions
         log.error("method=handlerMethodValidationException, exception={}", ex.getMessage());
 
@@ -100,7 +111,7 @@ public class GlobalExceptionHandler extends BaseExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiError> exception(Exception ex) {
+    public ResponseEntity<rmit.saintgiong.jobpostapi.internal.common.dto.error.ApiError> exception(Exception ex) {
         log.error("method=exception, exception={}", ex.getMessage(), ex);
         var errRes = getErrorResponse(INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR.getMessageTemplate(), Collections.emptyList());
 
@@ -113,5 +124,89 @@ public class GlobalExceptionHandler extends BaseExceptionHandler {
                 .filter(Objects::nonNull)
                 .findFirst()
                 .orElse(ex.getMessage());
+    }
+
+    @ExceptionHandler(TokenExpiredException.class)
+    public ResponseEntity<ErrorResponseDto> handleTokenExpiredException(
+            TokenExpiredException exception,
+            WebRequest request
+    ) {
+        ErrorResponseDto errorResponseDto = ErrorResponseDto.builder()
+                .apiPath(request.getDescription(false).replace("uri=", ""))
+                .errorCode(HttpStatus.UNAUTHORIZED)
+                .message(exception.getMessage())
+                .timeStamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(errorResponseDto);
+    }
+
+    @ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<ErrorResponseDto> handleInvalidTokenException(
+            InvalidTokenException exception,
+            WebRequest request
+    ) {
+        ErrorResponseDto errorResponseDto = ErrorResponseDto.builder()
+                .apiPath(request.getDescription(false).replace("uri=", ""))
+                .errorCode(HttpStatus.UNAUTHORIZED)
+                .message(exception.getMessage())
+                .timeStamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(errorResponseDto);
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ErrorResponseDto> handleInvalidCredentialsException(
+            InvalidCredentialsException exception,
+            WebRequest request
+    ) {
+        ErrorResponseDto errorResponseDto = ErrorResponseDto.builder()
+                .apiPath(request.getDescription(false).replace("uri=", ""))
+                .errorCode(HttpStatus.UNAUTHORIZED)
+                .message(exception.getMessage())
+                .timeStamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(errorResponseDto);
+    }
+
+    @ExceptionHandler(TokenReuseException.class)
+    public ResponseEntity<ErrorResponseDto> handleTokenReuseException(
+            TokenReuseException exception,
+            WebRequest request,
+            HttpServletResponse response
+    ) {
+        log.warn("Token reuse detected: {}", exception.getMessage());
+        Cookie accessCookie = new Cookie(CookieType.ACCESS_TOKEN, "");
+        accessCookie.setHttpOnly(true);
+        accessCookie.setSecure(true);
+        accessCookie.setPath("/");
+        accessCookie.setMaxAge(0);
+        response.addCookie(accessCookie);
+
+        Cookie refreshCookie = new Cookie(CookieType.REFRESH_TOKEN, "");
+        refreshCookie.setHttpOnly(true);
+        refreshCookie.setSecure(true);
+        refreshCookie.setPath("/");
+        refreshCookie.setMaxAge(0);
+        response.addCookie(refreshCookie);
+
+        ErrorResponseDto errorResponseDto = ErrorResponseDto.builder()
+                .apiPath(request.getDescription(false).replace("uri=", ""))
+                .errorCode(HttpStatus.UNAUTHORIZED)
+                .message(exception.getMessage())
+                .timeStamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(errorResponseDto);
     }
 }

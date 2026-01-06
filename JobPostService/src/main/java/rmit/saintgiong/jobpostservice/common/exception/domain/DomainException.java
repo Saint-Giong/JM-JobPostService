@@ -1,4 +1,4 @@
-package rmit.saintgiong.jobpostservice.common.exception;
+package rmit.saintgiong.jobpostservice.common.exception.domain;
 
 import rmit.saintgiong.jobpostapi.internal.common.type.DomainCode;
 

@@ -9,23 +9,23 @@ import java.util.List;
 
 public abstract class BaseExceptionHandler {
 
-    protected ApiError getErrorResponse(DomainCode domainCode, String message, List<ApiErrorDetails> details) {
+    protected rmit.saintgiong.jobpostapi.internal.common.dto.error.ApiError getErrorResponse(DomainCode domainCode, String message, List<rmit.saintgiong.jobpostapi.internal.common.dto.error.ApiErrorDetails> details) {
         String errorId = String.format("API-%d", domainCode.getCode());
-        return ApiError.builder()
+        return rmit.saintgiong.jobpostapi.internal.common.dto.error.ApiError.builder()
                 .errorId(errorId)
                 .message(message)
                 .details(details)
                 .build();
     }
 
-    protected ApiErrorDetails toErrorDetail(ObjectError error, ErrorLocation location) {
-        return ApiErrorDetails.builder()
+    protected rmit.saintgiong.jobpostapi.internal.common.dto.error.ApiErrorDetails toErrorDetail(ObjectError error, ErrorLocation location) {
+        return rmit.saintgiong.jobpostapi.internal.common.dto.error.ApiErrorDetails.builder()
                 .location(location)
                 .issue(error == null ? "" : error.getDefaultMessage())
                 .build();
     }
 
-    protected ApiError getErrorResponse(DomainCode code, String message) {
+    protected rmit.saintgiong.jobpostapi.internal.common.dto.error.ApiError getErrorResponse(DomainCode code, String message) {
         return getErrorResponse(code, message, Collections.emptyList());
     }
 
