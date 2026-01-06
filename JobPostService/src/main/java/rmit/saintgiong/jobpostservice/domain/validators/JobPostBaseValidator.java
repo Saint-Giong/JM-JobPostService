@@ -1,13 +1,11 @@
 package rmit.saintgiong.jobpostservice.domain.validators;
 
 import org.springframework.stereotype.Component;
-import rmit.saintgiong.jobpostservice.common.exception.DomainException;
+import rmit.saintgiong.jobpostservice.common.exception.domain.DomainException;
 import rmit.saintgiong.jobpostservice.domain.repositories.JobPostRepository;
 import rmit.saintgiong.jobpostservice.domain.repositories.entities.JobPostEntity;
 
 import java.util.UUID;
-
-import rmit.saintgiong.jobpostapi.internal.common.type.DomainCode;
 
 import static rmit.saintgiong.jobpostapi.internal.common.type.DomainCode.RESOURCE_NOT_FOUND;
 

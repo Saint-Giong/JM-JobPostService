@@ -4,7 +4,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import lombok.AccessLevel;
 import lombok.Builder;
-import rmit.saintgiong.jobpostservice.common.exception.DomainException;
+import rmit.saintgiong.jobpostservice.common.exception.domain.DomainException;
 
 import java.util.ArrayList;
 import java.util.List;

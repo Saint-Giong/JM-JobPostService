@@ -63,4 +63,15 @@ public class JobPostQueryService implements QueryJobPostInterface {
 
         return response;
     }
+
+    // TEST ENDPOINT
+    @Override
+    public List<QueryJobPostResponseDto> getAllJobPosts() {
+
+        List<JobPostEntity> entities = repository.findAll();
+
+        return entities.stream()
+                .map(mapper::toQueryResponse)
+                .collect(Collectors.toList());
+    }
 }

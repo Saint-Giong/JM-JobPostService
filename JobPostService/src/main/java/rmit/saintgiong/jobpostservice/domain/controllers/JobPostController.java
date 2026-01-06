@@ -54,9 +54,9 @@ public class JobPostController {
     @PostMapping
     @Operation(summary = "Create a new job post", description = "Creates a new job post with the provided details.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "201", description = "Job post created successfully",
-            content = @Content(schema = @Schema(implementation = CreateJobPostResponseDto.class))),
-        @ApiResponse(responseCode = "400", description = "Invalid input data")
+            @ApiResponse(responseCode = "201", description = "Job post created successfully",
+                    content = @Content(schema = @Schema(implementation = CreateJobPostResponseDto.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid input data")
     })
     public Callable<ResponseEntity<CreateJobPostResponseDto>> createJobPost(@Valid @RequestBody CreateJobPostRequestDto requestDto) {
         return () -> {
@@ -68,9 +68,9 @@ public class JobPostController {
     @GetMapping("/{id}")
     @Operation(summary = "Get a job post by ID", description = "Retrieves details of a specific job post by its ID.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Job post found",
-            content = @Content(schema = @Schema(implementation = QueryJobPostResponseDto.class))),
-        @ApiResponse(responseCode = "404", description = "Job post not found")
+            @ApiResponse(responseCode = "200", description = "Job post found",
+                    content = @Content(schema = @Schema(implementation = QueryJobPostResponseDto.class))),
+            @ApiResponse(responseCode = "404", description = "Job post not found")
     })
     public Callable<ResponseEntity<QueryJobPostResponseDto>> getJobPost(@Parameter(description = "ID of the job post to retrieve") @PathVariable @UUID String id) {
         return () -> {
@@ -82,9 +82,9 @@ public class JobPostController {
     @PatchMapping("/{id}")
     @Operation(summary = "Update an existing job post", description = "Updates the details of an existing job post.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "204", description = "Job post updated successfully"),
-        @ApiResponse(responseCode = "404", description = "Job post not found"),
-        @ApiResponse(responseCode = "400", description = "Invalid input data")
+            @ApiResponse(responseCode = "204", description = "Job post updated successfully"),
+            @ApiResponse(responseCode = "404", description = "Job post not found"),
+            @ApiResponse(responseCode = "400", description = "Invalid input data")
     })
     public Callable<ResponseEntity<Void>> updateJobPost(@Parameter(description = "ID of the job post to update") @PathVariable @UUID String id, @Valid @RequestBody UpdateJobPostRequestDto requestDto) {
         return () -> {
@@ -96,8 +96,8 @@ public class JobPostController {
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete a job post", description = "Deletes a job post by its ID.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "204", description = "Job post deleted successfully"),
-        @ApiResponse(responseCode = "404", description = "Job post not found")
+            @ApiResponse(responseCode = "204", description = "Job post deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "Job post not found")
     })
     public Callable<ResponseEntity<Void>> deleteJobPost(@Parameter(description = "ID of the job post to delete") @PathVariable @UUID String id) {
         return () -> {
@@ -109,12 +109,21 @@ public class JobPostController {
     @GetMapping("/search/{companyId}")
     @Operation(summary = "Get job posts by Company ID", description = "Retrieves a list of job posts belonging to a specific company.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "List of job posts retrieved successfully",
-            content = @Content(schema = @Schema(implementation = QueryJobPostResponseDto.class)))
+            @ApiResponse(responseCode = "200", description = "List of job posts retrieved successfully",
+                    content = @Content(schema = @Schema(implementation = QueryJobPostResponseDto.class)))
     })
     public Callable<ResponseEntity<List<QueryJobPostResponseDto>>> getJobPostsByCompany(@Parameter(description = "ID of the company to search job posts for") @PathVariable @UUID String companyId) {
         return () -> {
             List<QueryJobPostResponseDto> response = queryService.getJobPostsByCompanyId(companyId);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        };
+    }
+
+    @GetMapping("/")
+    @Operation(summary = "Get all job posts (TEST)")
+    public Callable<ResponseEntity<List<QueryJobPostResponseDto>>> getAllJobPost() {
+        return () -> {
+            List<QueryJobPostResponseDto> response = queryService.getAllJobPosts();
             return new ResponseEntity<>(response, HttpStatus.OK);
         };
     }

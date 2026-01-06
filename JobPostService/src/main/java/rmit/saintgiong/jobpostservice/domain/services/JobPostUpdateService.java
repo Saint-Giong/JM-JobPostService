@@ -14,12 +14,12 @@ import rmit.saintgiong.jobpostapi.internal.common.type.KafkaTopic;
 import rmit.saintgiong.jobpostapi.internal.dto.avro.JobPostUpdateResponseRecord;
 import rmit.saintgiong.jobpostapi.internal.dto.avro.JobPostUpdateSentRecord;
 import rmit.saintgiong.jobpostapi.internal.services.UpdateJobPostInterface;
-import rmit.saintgiong.jobpostservice.common.exception.DomainException;
+import rmit.saintgiong.jobpostservice.common.exception.domain.DomainException;
 import rmit.saintgiong.jobpostservice.domain.repositories.JobPostRepository;
 import rmit.saintgiong.jobpostservice.domain.repositories.entities.JobPostEntity;
 import rmit.saintgiong.jobpostservice.domain.validators.JobPostUpdateValidator;
 import rmit.saintgiong.jobpostservice.domain.mappers.JobPostMapper;
-import rmit.saintgiong.jobpostapi.internal.common.type.DomainCode;
+
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 
