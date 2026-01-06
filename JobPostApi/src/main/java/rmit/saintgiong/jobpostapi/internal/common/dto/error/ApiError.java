@@ -1,4 +1,4 @@
-package rmit.saintgiong.jobpostservice.common.exception;
+package rmit.saintgiong.jobpostapi.internal.common.dto.error;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;

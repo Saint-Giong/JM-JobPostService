@@ -7,7 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import rmit.saintgiong.jobpostapi.internal.common.dto.response.QueryJobPostResponseDto;
-import rmit.saintgiong.jobpostservice.common.exception.DomainException;
+import rmit.saintgiong.jobpostservice.common.exception.domain.DomainException;
 import rmit.saintgiong.jobpostservice.domain.mappers.JobPostMapper;
 import rmit.saintgiong.jobpostservice.domain.repositories.JobPostRepository;
 import rmit.saintgiong.jobpostservice.domain.repositories.entities.JobPostEntity;

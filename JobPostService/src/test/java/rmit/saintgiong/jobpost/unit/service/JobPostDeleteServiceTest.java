@@ -6,7 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import rmit.saintgiong.jobpostservice.common.exception.DomainException;
+import rmit.saintgiong.jobpostservice.common.exception.domain.DomainException;
 import rmit.saintgiong.jobpostservice.domain.repositories.JobPostRepository;
 import rmit.saintgiong.jobpostservice.domain.repositories.entities.JobPostEntity;
 import rmit.saintgiong.jobpostservice.domain.services.JobPostDeleteService;

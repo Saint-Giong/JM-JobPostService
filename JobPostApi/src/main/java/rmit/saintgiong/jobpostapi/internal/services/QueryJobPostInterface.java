@@ -8,4 +8,6 @@ public interface QueryJobPostInterface {
     QueryJobPostResponseDto getJobPostById(String id);
 
     List<QueryJobPostResponseDto> getJobPostsByCompanyId(String companyId);
+
+    List<QueryJobPostResponseDto> getAllJobPosts();
 }

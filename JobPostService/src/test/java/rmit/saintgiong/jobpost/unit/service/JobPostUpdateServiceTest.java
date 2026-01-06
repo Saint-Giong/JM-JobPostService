@@ -12,7 +12,7 @@ import org.springframework.kafka.requestreply.ReplyingKafkaTemplate;
 import org.springframework.kafka.requestreply.RequestReplyFuture;
 import rmit.saintgiong.jobpostapi.internal.common.dto.request.UpdateJobPostRequestDto;
 import rmit.saintgiong.jobpostapi.internal.common.type.DomainCode;
-import rmit.saintgiong.jobpostservice.common.exception.DomainException;
+import rmit.saintgiong.jobpostservice.common.exception.domain.DomainException;
 import rmit.saintgiong.jobpostservice.domain.mappers.JobPostMapper;
 import rmit.saintgiong.jobpostservice.domain.repositories.JobPostRepository;
 import rmit.saintgiong.jobpostservice.domain.repositories.entities.JobPostEntity;
