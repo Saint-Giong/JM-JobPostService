@@ -165,7 +165,6 @@ public class DataSeedingConfig implements CommandLineRunner {
                         .salaryTitle(SalaryTitle.RANGE)
                         .salaryMin(400.0)
                         .salaryMax(600.0)
-                        // Java(1) and HTML(19) for basic support
                         .skillTagIds(Set.of(TAG_JAVA, TAG_HTML))
                         .expiryDate(expiryDate)
                         .published(true)
