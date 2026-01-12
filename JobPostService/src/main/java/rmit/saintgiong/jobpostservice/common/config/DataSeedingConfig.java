@@ -6,6 +6,7 @@ import org.jspecify.annotations.NonNull;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import rmit.saintgiong.jobpostapi.internal.common.dto.request.CreateJobPostRequestDto;
+import rmit.saintgiong.jobpostapi.internal.common.type.SalaryTitle;
 import rmit.saintgiong.jobpostservice.domain.mappers.JobPostMapper;
 import rmit.saintgiong.jobpostservice.domain.repositories.JobPostRepository;
 import rmit.saintgiong.jobpostservice.domain.repositories.entities.JobPostEntity;
@@ -22,9 +23,7 @@ public class DataSeedingConfig implements CommandLineRunner {
     private final JobPostRepository jobPostRepository;
     private final JobPostMapper jobPostMapper;
 
-    // =========================================================================
-    // MAPPED SKILL TAGS (Based on your provided JSON)
-    // =========================================================================
+
     private static final int TAG_JAVA = 1;
     private static final int TAG_PYTHON = 2;
     private static final int TAG_REACT = 5;
@@ -58,7 +57,7 @@ public class DataSeedingConfig implements CommandLineRunner {
                         .city("Ho Chi Minh City")
                         .country("Vietnam")
                         .employmentTypes(Set.of("FULL_TIME", "INTERNSHIP"))
-                        .salaryTitle("RANGE")
+                        .salaryTitle(SalaryTitle.RANGE)
                         .salaryMin(850.0)
                         .salaryMax(1200.0)
                         // Correctly mapped IDs: React(5), Spring Boot(8), Docker(12)
@@ -75,7 +74,7 @@ public class DataSeedingConfig implements CommandLineRunner {
                         .city("Ho Chi Minh City")
                         .country("Vietnam")
                         .employmentTypes(Set.of("FULL_TIME"))
-                        .salaryTitle("ESTIMATION")
+                        .salaryTitle(SalaryTitle.ESTIMATION)
                         .salaryMin(2000.0)
                         .salaryMax(2000.0)
                         // Java(1), Spring Boot(8), SQL(10)
@@ -96,7 +95,7 @@ public class DataSeedingConfig implements CommandLineRunner {
                         .city("Singapore")
                         .country("Singapore")
                         .employmentTypes(Set.of("CONTRACT"))
-                        .salaryTitle("NEGOTIABLE")
+                        .salaryTitle(SalaryTitle.NEGOTIABLE)
                         .salaryMin(4000.0)
                         .salaryMax(4000.0)
                         // Mapped: Python(2), AWS(14). Replaced Snowflake with SQL(10)
@@ -113,7 +112,7 @@ public class DataSeedingConfig implements CommandLineRunner {
                         .city("Ho Chi Minh City")
                         .country("Vietnam")
                         .employmentTypes(Set.of("FULL_TIME"))
-                        .salaryTitle("RANGE")
+                        .salaryTitle(SalaryTitle.RANGE)
                         .salaryMin(3000.0)
                         .salaryMax(5000.0)
                         // Python(2), SQL(10)
@@ -132,7 +131,7 @@ public class DataSeedingConfig implements CommandLineRunner {
                         .city("Ho Chi Minh City")
                         .country("Vietnam")
                         .employmentTypes(Set.of("FULL_TIME"))
-                        .salaryTitle("RANGE")
+                        .salaryTitle(SalaryTitle.RANGE)
                         .salaryMin(600.0)
                         .salaryMax(900.0)
                         // Substituted Communication with GIT(16) & SQL(10) for data reporting
@@ -148,7 +147,7 @@ public class DataSeedingConfig implements CommandLineRunner {
                         .city("Hanoi")
                         .country("Vietnam")
                         .employmentTypes(Set.of("FULL_TIME"))
-                        .salaryTitle("ESTIMATION")
+                        .salaryTitle(SalaryTitle.ESTIMATION)
                         .salaryMin(500.0)
                         .salaryMax(500.0)
                         // SQL(10) for data tracking
@@ -167,7 +166,7 @@ public class DataSeedingConfig implements CommandLineRunner {
                         .city("Ho Chi Minh City")
                         .country("Vietnam")
                         .employmentTypes(Set.of("FULL_TIME"))
-                        .salaryTitle("NEGOTIABLE")
+                        .salaryTitle(SalaryTitle.NEGOTIABLE)
                         .salaryMin(700.0)
                         .salaryMax(700.0)
                         // Basic tech skill: HTML(19) or SQL(10)
@@ -183,7 +182,7 @@ public class DataSeedingConfig implements CommandLineRunner {
                         .city("Ho Chi Minh City")
                         .country("Vietnam")
                         .employmentTypes(Set.of("FULL_TIME", "INTERNSHIP"))
-                        .salaryTitle("RANGE")
+                        .salaryTitle(SalaryTitle.RANGE)
                         .salaryMin(400.0)
                         .salaryMax(600.0)
                         // Java(1) and HTML(19) for basic support

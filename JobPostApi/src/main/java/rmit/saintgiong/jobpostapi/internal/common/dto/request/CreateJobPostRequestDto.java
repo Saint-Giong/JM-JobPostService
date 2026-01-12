@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import rmit.saintgiong.jobpostapi.internal.common.type.SalaryTitle;
 
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -34,7 +35,7 @@ public class CreateJobPostRequestDto {
     private Set<String> employmentTypes;
 
     @Schema(description = "Title for the salary", example = "ABOUT")
-    private String salaryTitle;
+    private SalaryTitle salaryTitle;
 
     @Schema(description = "Minimum salary offered", example = "2000.0")
     private Double salaryMin;

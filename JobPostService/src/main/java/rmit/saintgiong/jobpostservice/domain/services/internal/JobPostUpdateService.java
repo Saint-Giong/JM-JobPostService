@@ -77,7 +77,7 @@ public class JobPostUpdateService implements UpdateJobPostInterface {
                 .setDescription(saved.getDescription())
                 .setCity(saved.getCity())
                 .setEmploymentType(new ArrayList<>(jobPostMapper.mapBitSetToStrings(saved.getEmploymentType())))
-                .setSalaryTitle(saved.getSalaryTitle())
+                .setSalaryTitle(String.valueOf(saved.getSalaryTitle()))
                 .setSalaryMin(saved.getSalaryMin())
                 .setSalaryMax(saved.getSalaryMax())
                 .setPostedDate(saved.getPostedDate().toInstant(ZoneOffset.UTC))
