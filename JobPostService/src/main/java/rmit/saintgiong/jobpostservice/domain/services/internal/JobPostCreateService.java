@@ -1,4 +1,4 @@
-package rmit.saintgiong.jobpostservice.domain.services;
+package rmit.saintgiong.jobpostservice.domain.services.internal;
 
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -12,8 +12,8 @@ import org.springframework.stereotype.Service;
 import rmit.saintgiong.jobpostapi.internal.common.dto.request.CreateJobPostRequestDto;
 import rmit.saintgiong.jobpostapi.internal.common.dto.response.CreateJobPostResponseDto;
 import rmit.saintgiong.jobpostapi.internal.common.type.KafkaTopic;
-import rmit.saintgiong.jobpostapi.internal.dto.avro.JobPostUpdateResponseRecord;
-import rmit.saintgiong.jobpostapi.internal.dto.avro.JobPostUpdateSentRecord;
+import rmit.saintgiong.jobpostapi.external.dto.avro.JobPostUpdateResponseRecord;
+import rmit.saintgiong.jobpostapi.external.dto.avro.JobPostUpdateSentRecord;
 import rmit.saintgiong.jobpostapi.internal.services.CreateJobPostInterface;
 import rmit.saintgiong.jobpostservice.domain.mappers.JobPostMapper;
 import rmit.saintgiong.jobpostservice.domain.repositories.JobPostRepository;
@@ -74,7 +74,7 @@ public class JobPostCreateService implements CreateJobPostInterface {
                 .setDescription(saved.getDescription())
                 .setCity(saved.getCity())
                 .setEmploymentType(new ArrayList<>(jobPostMapper.mapBitSetToStrings(saved.getEmploymentType())))
-                .setSalaryTitle(saved.getSalaryTitle())
+                .setSalaryTitle(String.valueOf(saved.getSalaryTitle()))
                 .setSalaryMin(saved.getSalaryMin())
                 .setSalaryMax(saved.getSalaryMax())
                 .setPostedDate(saved.getPostedDate().toInstant(ZoneOffset.UTC))

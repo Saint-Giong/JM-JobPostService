@@ -3,6 +3,7 @@ package rmit.saintgiong.jobpostservice.domain.repositories.entities;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import rmit.saintgiong.jobpostapi.internal.common.type.SalaryTitle;
 
 import java.time.LocalDateTime;
 import java.util.BitSet;
@@ -38,7 +39,7 @@ public class JobPostEntity {
     private BitSet employmentType;
 
     @Column(name = "salary_title")
-    private String salaryTitle;
+    private SalaryTitle salaryTitle;
 
     @Column(name = "salary_min")
     private Double salaryMin;

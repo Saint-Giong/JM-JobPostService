@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import rmit.saintgiong.jobpostapi.internal.common.type.SalaryTitle;
 
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -34,7 +35,7 @@ public class QueryJobPostResponseDto {
     private Set<Integer> skillTagIds;
 
     @Schema(description = "Title for the salary", example = "Annual Package")
-    private String salaryTitle;
+    private SalaryTitle salaryTitle;
 
     @Schema(description = "Minimum salary offered", example = "50000.0")
     private Double salaryMin;
@@ -54,6 +55,5 @@ public class QueryJobPostResponseDto {
     @Schema(description = "Country where the job is located", example = "Vietnam")
     private String country;
 
-    @Schema(description = "ID of the company posting the job", example = "3fa85f64-5717-4562-b3fc-2c963f66afa6")
-    private String companyId;
+    private QueryCompanyProfileResponseDto company;
 }

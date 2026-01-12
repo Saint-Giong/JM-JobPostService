@@ -1,4 +1,4 @@
-package rmit.saintgiong.jobpostservice.domain.services;
+package rmit.saintgiong.jobpostservice.domain.services.internal;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

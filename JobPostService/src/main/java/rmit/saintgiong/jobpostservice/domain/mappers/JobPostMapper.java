@@ -2,8 +2,10 @@ package rmit.saintgiong.jobpostservice.domain.mappers;
 
 import org.springframework.stereotype.Component;
 
+import rmit.saintgiong.jobpostapi.external.dto.avro.GetProfileResponseRecord;
 import rmit.saintgiong.jobpostapi.internal.common.dto.request.CreateJobPostRequestDto;
 import rmit.saintgiong.jobpostapi.internal.common.dto.request.UpdateJobPostRequestDto;
+import rmit.saintgiong.jobpostapi.internal.common.dto.response.QueryCompanyProfileResponseDto;
 import rmit.saintgiong.jobpostapi.internal.common.dto.response.QueryJobPostResponseDto;
 import rmit.saintgiong.jobpostapi.internal.common.type.EmploymentTypeEnum;
 import rmit.saintgiong.jobpostservice.domain.repositories.entities.JobPostEntity;
@@ -133,12 +135,26 @@ public class JobPostMapper {
         builder.published(entity.isPublished());
         builder.country(entity.getCountry());
         
-        if (entity.getCompanyId() != null) {
-            builder.companyId(entity.getCompanyId().toString());
-        }
-        
         builder.skillTagIds(mapSkillTagsToIds(entity.getSkillTags()));
 
         return builder.build();
+    }
+
+    public QueryCompanyProfileResponseDto fromAvroRecord(GetProfileResponseRecord record) {
+        if (record == null) {
+            return null;
+        }
+
+        return QueryCompanyProfileResponseDto.builder()
+                .id(record.getId() != null ? record.getId().toString() : null)
+                .name(record.getName() != null ? record.getName() : null)
+                .phone(record.getPhone() != null ? record.getPhone() : null)
+                .address(record.getAddress() != null ? record.getAddress() : null)
+                .city(record.getCity() != null ? record.getCity() : null)
+                .aboutUs(record.getAboutUs() != null ? record.getAboutUs() : null)
+                .admissionDescription(record.getAdmissionDescription() != null ? record.getAdmissionDescription() : null)
+                .logoUrl(record.getLogoUrl() != null ? record.getLogoUrl() : null)
+                .country(record.getCountry() != null ? record.getCountry() : null)
+                .build();
     }
 }

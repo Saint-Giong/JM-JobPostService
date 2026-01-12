@@ -1,0 +1,54 @@
+{
+  "namespace": "rmit.saintgiong.jobpostapi.external.dto.avro",
+  "type": "record",
+  "name": "GetProfileResponseRecord",
+  "fields": [
+    {
+      "name": "id",
+      "type": {
+        "type": "string",
+        "logicalType": "uuid"
+      }
+    },
+    {
+      "name": "name",
+      "type": "string",
+      "doc": "Company name is mandatory"
+    },
+    {
+      "name": "phone",
+      "type": ["null", "string"],
+      "default": null
+    },
+    {
+      "name": "address",
+      "type": ["null", "string"],
+      "default": null
+    },
+    {
+      "name": "city",
+      "type": ["null", "string"],
+      "default": null
+    },
+    {
+      "name": "aboutUs",
+      "type": ["null", "string"],
+      "default": null
+    },
+    {
+      "name": "admissionDescription",
+      "type": ["null", "string"],
+      "default": null
+    },
+    {
+      "name": "logoUrl",
+      "type": ["null", "string"],
+      "default": null
+    },
+    {
+      "name": "country",
+      "type": "string",
+      "doc": "Country is mandatory"
+    }
+  ]
+}
