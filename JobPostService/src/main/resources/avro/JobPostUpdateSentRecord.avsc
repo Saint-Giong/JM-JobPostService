@@ -1,5 +1,5 @@
 {
-    "namespace": "rmit.saintgiong.jobpostapi.internal.dto.avro",
+    "namespace": "rmit.saintgiong.jobpostapi.external.dto.avro",
     "type": "record",
     "name": "JobPostUpdateSentRecord",
     "fields": [
