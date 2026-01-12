@@ -6,14 +6,12 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.kafka.requestreply.ReplyingKafkaTemplate;
 import org.springframework.kafka.requestreply.RequestReplyFuture;
-import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.stereotype.Service;
 
 import rmit.saintgiong.jobpostapi.external.dto.avro.GetProfileResponseRecord;
 import rmit.saintgiong.jobpostapi.external.services.ExternalJobPostRequestInterface;
 import rmit.saintgiong.jobpostapi.internal.common.dto.request.UpdateJobPostRequestDto;
 import rmit.saintgiong.jobpostapi.internal.common.dto.response.QueryCompanyProfileResponseDto;
-import rmit.saintgiong.jobpostapi.internal.common.type.KafkaTopic;
 import rmit.saintgiong.jobpostapi.external.dto.avro.JobPostUpdateResponseRecord;
 import rmit.saintgiong.jobpostapi.external.dto.avro.JobPostUpdateSentRecord;
 import rmit.saintgiong.jobpostapi.internal.services.UpdateJobPostInterface;
