@@ -9,11 +9,14 @@ import org.springframework.kafka.requestreply.RequestReplyFuture;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.stereotype.Service;
 
-import rmit.saintgiong.jobpostapi.internal.common.dto.request.CreateJobPostRequestDto;
-import rmit.saintgiong.jobpostapi.internal.common.dto.response.CreateJobPostResponseDto;
-import rmit.saintgiong.jobpostapi.internal.common.type.KafkaTopic;
+import rmit.saintgiong.jobpostapi.external.dto.avro.GetProfileResponseRecord;
 import rmit.saintgiong.jobpostapi.external.dto.avro.JobPostUpdateResponseRecord;
 import rmit.saintgiong.jobpostapi.external.dto.avro.JobPostUpdateSentRecord;
+import rmit.saintgiong.jobpostapi.external.services.ExternalJobPostRequestInterface;
+import rmit.saintgiong.jobpostapi.internal.common.dto.request.CreateJobPostRequestDto;
+import rmit.saintgiong.jobpostapi.internal.common.dto.response.CreateJobPostResponseDto;
+import rmit.saintgiong.jobpostapi.internal.common.dto.response.QueryCompanyProfileResponseDto;
+import rmit.saintgiong.jobpostapi.internal.common.type.KafkaTopic;
 import rmit.saintgiong.jobpostapi.internal.services.CreateJobPostInterface;
 import rmit.saintgiong.jobpostservice.domain.mappers.JobPostMapper;
 import rmit.saintgiong.jobpostservice.domain.repositories.JobPostRepository;
@@ -24,6 +27,7 @@ import rmit.saintgiong.jobpostservice.domain.validators.JobPostCreateValidator;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -37,12 +41,14 @@ public class JobPostCreateService implements CreateJobPostInterface {
     private final JobPostCreateValidator createValidator;
 
     private final ReplyingKafkaTemplate<String, Object, Object> cloudReplyingKafkaTemplate;
+    private final ExternalJobPostRequestInterface externalJobPostRequestInterface;
 
-    public JobPostCreateService(JobPostMapper jobPostMapper, JobPostRepository repository, JobPostCreateValidator createValidator, ReplyingKafkaTemplate<String, Object, Object> cloudReplyingKafkaTemplate) {
+    public JobPostCreateService(JobPostMapper jobPostMapper, JobPostRepository repository, JobPostCreateValidator createValidator, ReplyingKafkaTemplate<String, Object, Object> cloudReplyingKafkaTemplate, ExternalJobPostRequestInterface externalJobPostRequestInterface) {
         this.jobPostMapper = jobPostMapper;
         this.repository = repository;
         this.createValidator = createValidator;
         this.cloudReplyingKafkaTemplate = cloudReplyingKafkaTemplate;
+        this.externalJobPostRequestInterface = externalJobPostRequestInterface;
     }
 
     @Override
@@ -67,6 +73,24 @@ public class JobPostCreateService implements CreateJobPostInterface {
         // Persist the new job post
         JobPostEntity saved = repository.saveAndFlush(entity);
 
+        QueryCompanyProfileResponseDto responseDto = externalJobPostRequestInterface.sendGetProfileRequest(saved.getCompanyId());
+        if (responseDto.getId() == null) {
+            log.warn("Failed get profile for ID: {}", saved.getCompanyId());
+        }
+        log.info("Successfully create profile for ID: {}", saved.getCompanyId());
+
+        GetProfileResponseRecord queryCompanyProfileResponseDto =  GetProfileResponseRecord.newBuilder()
+                .setId(UUID.fromString(responseDto.getId()))
+                .setName(responseDto.getName())
+                .setCountry(responseDto.getCountry())
+                .setPhone(responseDto.getPhone())
+                .setAddress(responseDto.getAddress())
+                .setCity(responseDto.getCity())
+                .setAboutUs(responseDto.getAboutUs())
+                .setAdmissionDescription(responseDto.getAdmissionDescription())
+                .setLogoUrl(responseDto.getLogoUrl())
+                .build();
+
         log.info("method=createJobPost, message=Successfully created job post, id={}", saved.getId());
         JobPostUpdateSentRecord jobPostUpdateSentRecord = JobPostUpdateSentRecord.newBuilder()
                 .setId(saved.getId())
@@ -87,6 +111,7 @@ public class JobPostCreateService implements CreateJobPostInterface {
                             .map(tag -> tag.getSkillTagId().getTagId())
                             .collect(java.util.stream.Collectors.toList())
                         : java.util.Collections.emptyList())
+                .setCompany(queryCompanyProfileResponseDto)
                 .build();
 
         ProducerRecord<String, Object> kafkaRequest = new ProducerRecord<>(KafkaTopic.JOB_POST_ADDED_TOPIC, jobPostUpdateSentRecord);
