@@ -9,7 +9,10 @@ import org.springframework.kafka.requestreply.RequestReplyFuture;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.stereotype.Service;
 
+import rmit.saintgiong.jobpostapi.external.dto.avro.GetProfileResponseRecord;
+import rmit.saintgiong.jobpostapi.external.services.ExternalJobPostRequestInterface;
 import rmit.saintgiong.jobpostapi.internal.common.dto.request.UpdateJobPostRequestDto;
+import rmit.saintgiong.jobpostapi.internal.common.dto.response.QueryCompanyProfileResponseDto;
 import rmit.saintgiong.jobpostapi.internal.common.type.KafkaTopic;
 import rmit.saintgiong.jobpostapi.external.dto.avro.JobPostUpdateResponseRecord;
 import rmit.saintgiong.jobpostapi.external.dto.avro.JobPostUpdateSentRecord;
@@ -38,12 +41,14 @@ public class JobPostUpdateService implements UpdateJobPostInterface {
     private final JobPostUpdateValidator updateValidator;
 
     private final ReplyingKafkaTemplate<String, Object, Object> cloudReplyingKafkaTemplate;
+    private final ExternalJobPostRequestInterface externalJobPostRequestInterface;
 
-    public JobPostUpdateService(JobPostMapper jobPostMapper, JobPostRepository repository, JobPostUpdateValidator updateValidator, ReplyingKafkaTemplate<String, Object, Object> cloudReplyingKafkaTemplate) {
+    public JobPostUpdateService(JobPostMapper jobPostMapper, JobPostRepository repository, JobPostUpdateValidator updateValidator, ReplyingKafkaTemplate<String, Object, Object> cloudReplyingKafkaTemplate, ExternalJobPostRequestInterface externalJobPostRequestInterface) {
         this.jobPostMapper = jobPostMapper;
         this.repository = repository;
         this.updateValidator = updateValidator;
         this.cloudReplyingKafkaTemplate = cloudReplyingKafkaTemplate;
+        this.externalJobPostRequestInterface = externalJobPostRequestInterface;
     }
 
     @Override
@@ -71,6 +76,25 @@ public class JobPostUpdateService implements UpdateJobPostInterface {
 
         JobPostEntity saved = repository.saveAndFlush(updatedEntity);
 
+        QueryCompanyProfileResponseDto responseDto = externalJobPostRequestInterface.sendGetProfileRequest(saved.getCompanyId());
+        if (responseDto.getId() == null) {
+            log.warn("Failed get profile for ID: {}", saved.getCompanyId());
+        }
+        log.info("Successfully create profile for ID: {}", saved.getCompanyId());
+
+        GetProfileResponseRecord queryCompanyProfileResponseDto =  GetProfileResponseRecord.newBuilder()
+                .setId(UUID.fromString(responseDto.getId()))
+                .setName(responseDto.getName())
+                .setCountry(responseDto.getCountry())
+                .setPhone(responseDto.getPhone())
+                .setAddress(responseDto.getAddress())
+                .setCity(responseDto.getCity())
+                .setAboutUs(responseDto.getAboutUs())
+                .setAdmissionDescription(responseDto.getAdmissionDescription())
+                .setLogoUrl(responseDto.getLogoUrl())
+                .build();
+
+
         JobPostUpdateSentRecord jobPostUpdateSentRecord = JobPostUpdateSentRecord.newBuilder()
                 .setId(saved.getId())
                 .setTitle(saved.getTitle())
@@ -90,6 +114,7 @@ public class JobPostUpdateService implements UpdateJobPostInterface {
                             .map(tag -> tag.getSkillTagId().getTagId())
                             .collect(java.util.stream.Collectors.toList())
                         : java.util.Collections.emptyList())
+                .setCompany(queryCompanyProfileResponseDto)
                 .build();
 
         ProducerRecord<String, Object> kafkaRequest = new ProducerRecord<>(KafkaTopic.JOB_POST_UPDATED_TOPIC, jobPostUpdateSentRecord);
