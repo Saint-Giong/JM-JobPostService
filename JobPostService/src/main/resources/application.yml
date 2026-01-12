@@ -62,8 +62,10 @@ kafka:
       api-secret: ${SCHEMA_REGISTRY_SECRET}
 
   # LOCAL DOCKER
-  kafka-host-url: ${KAFKA_HOST_URL:localhost:9192}
-  schema-registry-host-url: ${SCHEMA_REGISTRY_HOST_URL:http://localhost:9191}
+  local:
+    bootstrap-servers: ${KAFKA_HOST_URL:localhost:9192}
+    schema-registry:
+      url: ${SCHEMA_REGISTRY_HOST_URL:http://localhost:9191}
 
 key:
   public-key-b64: ${PUBLIC_KEY_B64:}

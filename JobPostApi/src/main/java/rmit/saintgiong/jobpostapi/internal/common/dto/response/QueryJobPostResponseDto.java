@@ -54,6 +54,5 @@ public class QueryJobPostResponseDto {
     @Schema(description = "Country where the job is located", example = "Vietnam")
     private String country;
 
-    @Schema(description = "ID of the company posting the job", example = "3fa85f64-5717-4562-b3fc-2c963f66afa6")
-    private String companyId;
+    private QueryCompanyProfileResponseDto company;
 }
