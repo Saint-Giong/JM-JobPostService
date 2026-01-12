@@ -1,7 +1,5 @@
 package rmit.saintgiong.jobpostservice.domain.services.external;
 
-import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import rmit.saintgiong.jobpostapi.external.dto.avro.GetAllProfilesRequestRecord;
@@ -12,14 +10,13 @@ import rmit.saintgiong.jobpostapi.external.services.ExternalJobPostRequestInterf
 import rmit.saintgiong.jobpostapi.external.services.kafka.CloudEventProducerInterface;
 import rmit.saintgiong.jobpostapi.external.services.kafka.EventProducerInterface;
 import rmit.saintgiong.jobpostapi.internal.common.dto.response.QueryCompanyProfileResponseDto;
-import rmit.saintgiong.jobpostapi.internal.common.type.KafkaTopic;
 
 import rmit.saintgiong.jobpostservice.domain.mappers.JobPostMapper;
+import rmit.saintgiong.shared.type.KafkaTopic;
 
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -47,8 +44,8 @@ public class ExternalJobPostRequestService implements ExternalJobPostRequestInte
                     .build();
 
             GetProfileResponseRecord response = eventProducer.sendAndReceive(
-                    KafkaTopic.GET_PROFILE_REQUEST,
-                    KafkaTopic.GET_PROFILE_RESPONSE,
+                    KafkaTopic.JM_GET_PROFILE_REQUEST_TOPIC,
+                    KafkaTopic.JM_GET_PROFILE_RESPONSE_TOPIC,
                     getProfileRequestRecord,
                     GetProfileResponseRecord.class
             );
@@ -73,10 +70,9 @@ public class ExternalJobPostRequestService implements ExternalJobPostRequestInte
                     .build();
 
             // 2. Send and wait for reply
-            // Note: Using the exact topic names you provided (check spelling of 'REPONSE')
             GetAllProfilesResponseRecord response = eventProducer.sendAndReceive(
-                    KafkaTopic.GET_ALL_PROFILE_REQUEST,
-                    KafkaTopic.GET_ALL_PROFILE_RESPONSE,
+                    KafkaTopic.JM_GET_ALL_PROFILES_REQUEST_TOPIC,
+                    KafkaTopic.JM_GET_ALL_PROFILES_RESPONSE_TOPIC,
                     request,
                     GetAllProfilesResponseRecord.class
             );

@@ -22,6 +22,7 @@ import rmit.saintgiong.jobpostservice.domain.repositories.JobPostRepository;
 import rmit.saintgiong.jobpostservice.domain.repositories.entities.JobPostEntity;
 import rmit.saintgiong.jobpostservice.domain.validators.JobPostUpdateValidator;
 import rmit.saintgiong.jobpostservice.domain.mappers.JobPostMapper;
+import rmit.saintgiong.shared.type.KafkaTopic;
 
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -117,8 +118,10 @@ public class JobPostUpdateService implements UpdateJobPostInterface {
                 .setCompany(queryCompanyProfileResponseDto)
                 .build();
 
-        ProducerRecord<String, Object> kafkaRequest = new ProducerRecord<>(KafkaTopic.JOB_POST_UPDATED_TOPIC, jobPostUpdateSentRecord);
-        kafkaRequest.headers().add(KafkaHeaders.REPLY_TOPIC, KafkaTopic.JOB_POST_UPDATED_REPLY_TOPIC.getBytes());
+        ProducerRecord<String, Object> kafkaRequest = new ProducerRecord<>(
+                KafkaTopic.JM_POST_UPDATED_TOPIC,
+                jobPostUpdateSentRecord
+        );
 
         try {
             RequestReplyFuture<String, Object, Object> responseRecord = cloudReplyingKafkaTemplate.sendAndReceive(kafkaRequest);

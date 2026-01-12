@@ -1,6 +1,5 @@
 package rmit.saintgiong.jobpostservice.common.kafka.cloud;
 
-
 import io.confluent.kafka.serializers.KafkaAvroDeserializer;
 import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -15,7 +14,7 @@ import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.requestreply.ReplyingKafkaTemplate;
-import rmit.saintgiong.jobpostapi.internal.common.type.KafkaTopic;
+import rmit.saintgiong.shared.type.KafkaTopic;
 
 import java.time.Duration;
 import java.util.Map;
@@ -60,7 +59,7 @@ public class CloudKafkaConsumerConfig {
             @Qualifier("cloudConsumerFactory") ConsumerFactory<String, Object> consumerFactory) {
 
         ContainerProperties containerProperties = new ContainerProperties(
-                KafkaTopic.JOB_POST_UPDATED_REPLY_TOPIC
+                ""
         );
 
         // FIX: Unique Group ID per instance prevents "reply stealing"

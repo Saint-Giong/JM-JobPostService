@@ -12,14 +12,10 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 import org.springframework.kafka.listener.ContainerProperties;
-import org.springframework.kafka.requestreply.ReplyingKafkaTemplate;
-import rmit.saintgiong.jobpostapi.internal.common.type.KafkaTopic;
-import rmit.saintgiong.jobpostservice.common.kafka.local.LocalKafkaConfig;
+import rmit.saintgiong.shared.type.KafkaTopic;
 
-import java.time.Duration;
 import java.util.Map;
 import java.util.UUID;
 
@@ -66,8 +62,8 @@ public class LocalKafkaConsumerConfig {
             @Qualifier("localConsumerFactory") ConsumerFactory<String, Object> consumerFactory) {
 
         ContainerProperties containerProperties = new ContainerProperties(
-                KafkaTopic.GET_PROFILE_RESPONSE,
-                KafkaTopic.GET_ALL_PROFILE_RESPONSE
+                KafkaTopic.JM_GET_PROFILE_RESPONSE_TOPIC,
+                KafkaTopic.JM_GET_ALL_PROFILES_RESPONSE_TOPIC
         );
 
         String uniqueGroupId = "jobpost-reply-group-" + UUID.randomUUID();

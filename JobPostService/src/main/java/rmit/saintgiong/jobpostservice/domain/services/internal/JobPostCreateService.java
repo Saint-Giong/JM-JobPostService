@@ -17,11 +17,14 @@ import rmit.saintgiong.jobpostapi.internal.common.dto.request.CreateJobPostReque
 import rmit.saintgiong.jobpostapi.internal.common.dto.response.CreateJobPostResponseDto;
 import rmit.saintgiong.jobpostapi.internal.common.dto.response.QueryCompanyProfileResponseDto;
 import rmit.saintgiong.jobpostapi.internal.common.type.KafkaTopic;
+import rmit.saintgiong.jobpostapi.external.dto.avro.JobPostUpdateResponseRecord;
+import rmit.saintgiong.jobpostapi.external.dto.avro.JobPostUpdateSentRecord;
 import rmit.saintgiong.jobpostapi.internal.services.CreateJobPostInterface;
 import rmit.saintgiong.jobpostservice.domain.mappers.JobPostMapper;
 import rmit.saintgiong.jobpostservice.domain.repositories.JobPostRepository;
 import rmit.saintgiong.jobpostservice.domain.repositories.entities.JobPostEntity;
 import rmit.saintgiong.jobpostservice.domain.validators.JobPostCreateValidator;
+import rmit.saintgiong.shared.type.KafkaTopic;
 
 
 import java.time.ZoneOffset;
@@ -114,8 +117,7 @@ public class JobPostCreateService implements CreateJobPostInterface {
                 .setCompany(queryCompanyProfileResponseDto)
                 .build();
 
-        ProducerRecord<String, Object> kafkaRequest = new ProducerRecord<>(KafkaTopic.JOB_POST_ADDED_TOPIC, jobPostUpdateSentRecord);
-        kafkaRequest.headers().add(KafkaHeaders.REPLY_TOPIC, KafkaTopic.JOB_POST_ADDED_REPLY_TOPIC.getBytes());
+        ProducerRecord<String, Object> kafkaRequest = new ProducerRecord<>(KafkaTopic.JM_POST_ADDED_TOPIC, jobPostUpdateSentRecord);
 
         try {
             RequestReplyFuture<String, Object, Object> responseRecord = cloudReplyingKafkaTemplate.sendAndReceive(kafkaRequest);
