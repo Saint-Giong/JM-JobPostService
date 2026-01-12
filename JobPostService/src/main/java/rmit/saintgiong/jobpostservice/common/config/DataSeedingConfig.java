@@ -28,11 +28,11 @@ public class DataSeedingConfig implements CommandLineRunner {
     private static final int TAG_PYTHON = 2;
     private static final int TAG_REACT = 5;
     private static final int TAG_SPRING_BOOT = 8;
-    private static final int TAG_SNOWFLAKE = 10;        // Used for Data/Analyst roles
+    private static final int TAG_SNOWFLAKE = 10;
     private static final int TAG_DOCKER = 12;
     private static final int TAG_AWS = 14;
-    private static final int TAG_COMMUNICATION = 16;        // Used as a generic tool req
-    private static final int TAG_HTML = 19;       // Used for basic web roles
+    private static final int TAG_COMMUNICATION = 16;
+    private static final int TAG_HTML = 19;
 
     @Override
     public void run(String... args) {
@@ -45,11 +45,7 @@ public class DataSeedingConfig implements CommandLineRunner {
         LocalDateTime expiryDate = LocalDateTime.now().plusDays(30);
 
         List<CreateJobPostRequestDto> dtos = List.of(
-                // ==================================================================================
-                // 1. PREMIUM: Netcompany (333...) - Domain: Software Engineering
-                // ==================================================================================
 
-                // MATCHES REQUIREMENT: Full-time Intern, >800 USD, Vietnam, React + Spring Boot + Docker
                 CreateJobPostRequestDto.builder()
                         .companyId("33333333-3333-3333-3333-333333333333")
                         .title("Full-stack Software Engineer Intern")
@@ -66,7 +62,6 @@ public class DataSeedingConfig implements CommandLineRunner {
                         .published(true)
                         .build(),
 
-                // Job 2 (Senior Role)
                 CreateJobPostRequestDto.builder()
                         .companyId("33333333-3333-3333-3333-333333333333")
                         .title("Senior Java Backend Developer")
@@ -83,11 +78,6 @@ public class DataSeedingConfig implements CommandLineRunner {
                         .published(true)
                         .build(),
 
-                // ==================================================================================
-                // 2. PREMIUM: Google (222...) - Domain: Data Engineering
-                // ==================================================================================
-
-                // MATCHES REQUIREMENT: Contractual, >1200 USD, Singapore, Python + AWS + Snowflake
                 CreateJobPostRequestDto.builder()
                         .companyId("22222222-2222-2222-2222-222222222222")
                         .title("Data Engineer (Contract)")
@@ -98,13 +88,11 @@ public class DataSeedingConfig implements CommandLineRunner {
                         .salaryTitle(SalaryTitle.NEGOTIABLE)
                         .salaryMin(4000.0)
                         .salaryMax(4000.0)
-                        // Mapped: Python(2), AWS(14). Replaced Snowflake with SQL(10)
                         .skillTagIds(Set.of(TAG_PYTHON, TAG_AWS, TAG_SNOWFLAKE))
                         .expiryDate(expiryDate)
                         .published(true)
                         .build(),
 
-                // Job 2 (AI/ML)
                 CreateJobPostRequestDto.builder()
                         .companyId("22222222-2222-2222-2222-222222222222")
                         .title("AI Research Scientist")
@@ -121,9 +109,6 @@ public class DataSeedingConfig implements CommandLineRunner {
                         .published(true)
                         .build(),
 
-                // ==================================================================================
-                // 3. FREEMIUM: Shopee (444...) - E-commerce Operations
-                // ==================================================================================
                 CreateJobPostRequestDto.builder()
                         .companyId("44444444-4444-4444-4444-444444444444")
                         .title("Technical Customer Service Lead")
@@ -134,7 +119,6 @@ public class DataSeedingConfig implements CommandLineRunner {
                         .salaryTitle(SalaryTitle.RANGE)
                         .salaryMin(600.0)
                         .salaryMax(900.0)
-                        // Substituted Communication with GIT(16) & SQL(10) for data reporting
                         .skillTagIds(Set.of(TAG_SNOWFLAKE, TAG_COMMUNICATION))
                         .expiryDate(expiryDate)
                         .published(true)
@@ -150,15 +134,11 @@ public class DataSeedingConfig implements CommandLineRunner {
                         .salaryTitle(SalaryTitle.ESTIMATION)
                         .salaryMin(500.0)
                         .salaryMax(500.0)
-                        // SQL(10) for data tracking
                         .skillTagIds(Set.of(TAG_SNOWFLAKE))
                         .expiryDate(expiryDate)
                         .published(true)
                         .build(),
 
-                // ==================================================================================
-                // 4. FREEMIUM: Highlands Coffee (555...) - Retail / IT
-                // ==================================================================================
                 CreateJobPostRequestDto.builder()
                         .companyId("55555555-5555-5555-5555-555555555555")
                         .title("Digital Store Manager")
