@@ -4,8 +4,7 @@ import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.springframework.kafka.requestreply.ReplyingKafkaTemplate;
-import org.springframework.kafka.requestreply.RequestReplyFuture;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import rmit.saintgiong.jobpostapi.external.dto.avro.GetProfileResponseRecord;
@@ -39,14 +38,14 @@ public class JobPostCreateService implements CreateJobPostInterface {
 
     private final JobPostCreateValidator createValidator;
 
-    private final ReplyingKafkaTemplate<String, Object, Object> cloudReplyingKafkaTemplate;
+    private final KafkaTemplate<String, Object> cloudKafkaTemplate;
     private final ExternalJobPostRequestInterface externalJobPostRequestInterface;
 
-    public JobPostCreateService(JobPostMapper jobPostMapper, JobPostRepository repository, JobPostCreateValidator createValidator, ReplyingKafkaTemplate<String, Object, Object> cloudReplyingKafkaTemplate, ExternalJobPostRequestInterface externalJobPostRequestInterface) {
+    public JobPostCreateService(JobPostMapper jobPostMapper, JobPostRepository repository, JobPostCreateValidator createValidator,  KafkaTemplate<String, Object> cloudKafkaTemplate, ExternalJobPostRequestInterface externalJobPostRequestInterface) {
         this.jobPostMapper = jobPostMapper;
         this.repository = repository;
         this.createValidator = createValidator;
-        this.cloudReplyingKafkaTemplate = cloudReplyingKafkaTemplate;
+        this.cloudKafkaTemplate = cloudKafkaTemplate;
         this.externalJobPostRequestInterface = externalJobPostRequestInterface;
     }
 
@@ -116,18 +115,8 @@ public class JobPostCreateService implements CreateJobPostInterface {
         ProducerRecord<String, Object> kafkaRequest = new ProducerRecord<>(KafkaTopic.JM_POST_ADDED_TOPIC, jobPostUpdateSentRecord);
 
         try {
-            RequestReplyFuture<String, Object, Object> responseRecord = cloudReplyingKafkaTemplate.sendAndReceive(kafkaRequest);
+            cloudKafkaTemplate.send(kafkaRequest);
 
-            ConsumerRecord<String, Object> response = responseRecord.get(10, TimeUnit.SECONDS);
-
-            Object responseValue = response.value();
-            if (responseValue instanceof JobPostUpdateResponseRecord jobpostRespose) {
-                log.info(
-                        "Success");
-            } else {
-                log.warn(
-                        "Invalid response received from Kafka");
-            }
         } catch (Exception e) {
             log.error("Error while sending");
         }
