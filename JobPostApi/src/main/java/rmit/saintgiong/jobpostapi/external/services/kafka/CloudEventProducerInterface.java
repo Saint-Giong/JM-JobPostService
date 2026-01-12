@@ -1,14 +1,12 @@
 package rmit.saintgiong.jobpostapi.external.services.kafka;
 
-import java.util.concurrent.ExecutionException;
-
 public interface CloudEventProducerInterface {
     void send(String requestTopic, Object requestData);
 
-    <T> T sendAndReceive(
-            String requestTopic,
-            String responseTopic,
-            Object requestData,
-            Class<T> responseType
-    ) throws ExecutionException, InterruptedException;
+//    <T> T sendAndReceive(
+//            String requestTopic,
+//            String responseTopic,
+//            Object requestData,
+//            Class<T> responseType
+//    ) throws ExecutionException, InterruptedException;
 }
