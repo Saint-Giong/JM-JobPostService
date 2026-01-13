@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import rmit.saintgiong.jobpostapi.internal.common.dto.request.CreateJobPostRequestDto;
 import rmit.saintgiong.jobpostapi.internal.common.dto.request.UpdateJobPostRequestDto;
+import rmit.saintgiong.jobpostapi.internal.common.dto.response.ApplicationResponseDto;
 import rmit.saintgiong.jobpostapi.internal.common.dto.response.CreateJobPostResponseDto;
 import rmit.saintgiong.jobpostapi.internal.common.dto.response.QueryJobPostResponseDto;
 import rmit.saintgiong.jobpostapi.internal.services.CreateJobPostInterface;
@@ -134,13 +135,13 @@ public class JobPostController {
     @GetMapping("/{id}/application")
     @Operation(summary = "Get applications for a job post", description = "Retrieves a list of applications for a specific job post.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "List of applications retrieved successfully", content = @Content(schema = @Schema(implementation = rmit.saintgiong.jobpostapi.internal.common.dto.response.ApplicationResponseDto.class))),
+            @ApiResponse(responseCode = "200", description = "List of applications retrieved successfully", content = @Content(schema = @Schema(implementation = ApplicationResponseDto.class))),
             @ApiResponse(responseCode = "404", description = "Job post not found")
     })
-    public Callable<ResponseEntity<List<rmit.saintgiong.jobpostapi.internal.common.dto.response.ApplicationResponseDto>>> getApplicantsByJobPost(
+    public Callable<ResponseEntity<List<ApplicationResponseDto>>> getApplicantsByJobPost(
             @Parameter(description = "ID of the job post to retrieve applications for") @PathVariable @UUID String id) {
         return () -> {
-            List<rmit.saintgiong.jobpostapi.internal.common.dto.response.ApplicationResponseDto> response = queryService
+            List<ApplicationResponseDto> response = queryService
                     .getApplicationsByJobPostId(id);
             return new ResponseEntity<>(response, HttpStatus.OK);
         };
