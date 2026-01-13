@@ -134,10 +134,18 @@ public class JobPostMapper {
         builder.expiryDate(entity.getExpiryDate());
         builder.published(entity.isPublished());
         builder.country(entity.getCountry());
-        
+
         builder.skillTagIds(mapSkillTagsToIds(entity.getSkillTags()));
 
         return builder.build();
+    }
+
+    public QueryJobPostResponseDto toQueryResponse(JobPostEntity entity, Integer applicationCount) {
+        QueryJobPostResponseDto dto = toQueryResponse(entity);
+        if (dto != null) {
+            dto.setApplicationCount(applicationCount);
+        }
+        return dto;
     }
 
     public QueryCompanyProfileResponseDto fromAvroRecord(GetProfileResponseRecord record) {
@@ -152,7 +160,8 @@ public class JobPostMapper {
                 .address(record.getAddress() != null ? record.getAddress() : null)
                 .city(record.getCity() != null ? record.getCity() : null)
                 .aboutUs(record.getAboutUs() != null ? record.getAboutUs() : null)
-                .admissionDescription(record.getAdmissionDescription() != null ? record.getAdmissionDescription() : null)
+                .admissionDescription(
+                        record.getAdmissionDescription() != null ? record.getAdmissionDescription() : null)
                 .logoUrl(record.getLogoUrl() != null ? record.getLogoUrl() : null)
                 .country(record.getCountry() != null ? record.getCountry() : null)
                 .build();
