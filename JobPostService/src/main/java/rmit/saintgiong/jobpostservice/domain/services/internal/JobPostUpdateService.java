@@ -2,24 +2,21 @@ package rmit.saintgiong.jobpostservice.domain.services.internal;
 
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.requestreply.RequestReplyFuture;
 import org.springframework.stereotype.Service;
 
-import rmit.saintgiong.jobpostapi.external.dto.avro.GetProfileResponseRecord;
 import rmit.saintgiong.jobpostapi.external.services.ExternalJobPostRequestInterface;
 import rmit.saintgiong.jobpostapi.internal.common.dto.request.UpdateJobPostRequestDto;
 import rmit.saintgiong.jobpostapi.internal.common.dto.response.QueryCompanyProfileResponseDto;
-import rmit.saintgiong.jobpostapi.external.dto.avro.JobPostUpdateResponseRecord;
-import rmit.saintgiong.jobpostapi.external.dto.avro.JobPostUpdateSentRecord;
 import rmit.saintgiong.jobpostapi.internal.services.UpdateJobPostInterface;
 import rmit.saintgiong.jobpostservice.common.exception.domain.DomainException;
 import rmit.saintgiong.jobpostservice.domain.repositories.JobPostRepository;
 import rmit.saintgiong.jobpostservice.domain.repositories.entities.JobPostEntity;
 import rmit.saintgiong.jobpostservice.domain.validators.JobPostUpdateValidator;
 import rmit.saintgiong.jobpostservice.domain.mappers.JobPostMapper;
+import rmit.saintgiong.shared.dto.avro.jobpost.GetProfileResponseRecord;
+import rmit.saintgiong.shared.dto.avro.jobpost.JobPostUpdateSentRecord;
 import rmit.saintgiong.shared.type.KafkaTopic;
 
 import java.time.ZoneOffset;

@@ -7,9 +7,6 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
-import rmit.saintgiong.jobpostapi.external.dto.avro.GetProfileResponseRecord;
-import rmit.saintgiong.jobpostapi.external.dto.avro.JobPostUpdateResponseRecord;
-import rmit.saintgiong.jobpostapi.external.dto.avro.JobPostUpdateSentRecord;
 import rmit.saintgiong.jobpostapi.external.services.ExternalJobPostRequestInterface;
 import rmit.saintgiong.jobpostapi.internal.common.dto.request.CreateJobPostRequestDto;
 import rmit.saintgiong.jobpostapi.internal.common.dto.response.CreateJobPostResponseDto;
@@ -19,6 +16,8 @@ import rmit.saintgiong.jobpostservice.domain.mappers.JobPostMapper;
 import rmit.saintgiong.jobpostservice.domain.repositories.JobPostRepository;
 import rmit.saintgiong.jobpostservice.domain.repositories.entities.JobPostEntity;
 import rmit.saintgiong.jobpostservice.domain.validators.JobPostCreateValidator;
+import rmit.saintgiong.shared.dto.avro.jobpost.GetProfileResponseRecord;
+import rmit.saintgiong.shared.dto.avro.jobpost.JobPostUpdateSentRecord;
 import rmit.saintgiong.shared.type.KafkaTopic;
 
 

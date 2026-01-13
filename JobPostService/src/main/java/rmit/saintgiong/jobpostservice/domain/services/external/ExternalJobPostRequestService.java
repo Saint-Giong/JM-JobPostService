@@ -2,16 +2,16 @@ package rmit.saintgiong.jobpostservice.domain.services.external;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import rmit.saintgiong.jobpostapi.external.dto.avro.GetAllProfilesRequestRecord;
-import rmit.saintgiong.jobpostapi.external.dto.avro.GetAllProfilesResponseRecord;
-import rmit.saintgiong.jobpostapi.external.dto.avro.GetProfileRequestRecord;
-import rmit.saintgiong.jobpostapi.external.dto.avro.GetProfileResponseRecord;
 import rmit.saintgiong.jobpostapi.external.services.ExternalJobPostRequestInterface;
 import rmit.saintgiong.jobpostapi.external.services.kafka.CloudEventProducerInterface;
 import rmit.saintgiong.jobpostapi.external.services.kafka.EventProducerInterface;
 import rmit.saintgiong.jobpostapi.internal.common.dto.response.QueryCompanyProfileResponseDto;
 
 import rmit.saintgiong.jobpostservice.domain.mappers.JobPostMapper;
+import rmit.saintgiong.shared.dto.avro.jobpost.GetAllProfilesRequestRecord;
+import rmit.saintgiong.shared.dto.avro.jobpost.GetAllProfilesResponseRecord;
+import rmit.saintgiong.shared.dto.avro.jobpost.GetProfileRequestRecord;
+import rmit.saintgiong.shared.dto.avro.jobpost.GetProfileResponseRecord;
 import rmit.saintgiong.shared.type.KafkaTopic;
 
 

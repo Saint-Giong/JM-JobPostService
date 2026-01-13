@@ -2,7 +2,6 @@ package rmit.saintgiong.jobpostservice.domain.mappers;
 
 import org.springframework.stereotype.Component;
 
-import rmit.saintgiong.jobpostapi.external.dto.avro.GetProfileResponseRecord;
 import rmit.saintgiong.jobpostapi.internal.common.dto.request.CreateJobPostRequestDto;
 import rmit.saintgiong.jobpostapi.internal.common.dto.request.UpdateJobPostRequestDto;
 import rmit.saintgiong.jobpostapi.internal.common.dto.response.QueryCompanyProfileResponseDto;
@@ -10,6 +9,7 @@ import rmit.saintgiong.jobpostapi.internal.common.dto.response.QueryJobPostRespo
 import rmit.saintgiong.jobpostapi.internal.common.type.EmploymentTypeEnum;
 import rmit.saintgiong.jobpostservice.domain.repositories.entities.JobPostEntity;
 import rmit.saintgiong.jobpostservice.domain.repositories.entities.JobPost_SkillTagEntity;
+import rmit.saintgiong.shared.dto.avro.jobpost.GetProfileResponseRecord;
 
 import java.util.BitSet;
 import java.util.Collections;
