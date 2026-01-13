@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import rmit.saintgiong.jobpostapi.internal.common.dto.response.ApplicationResponseDto;
+import rmit.saintgiong.jobpostapi.internal.common.type.JobApplicationStatus;
 import rmit.saintgiong.jobpostservice.common.config.ExternalApplicationConfig;
 import rmit.saintgiong.jobpostservice.domain.dto.external.ExternalApplicationResponseDto;
 
@@ -23,9 +24,6 @@ public class ExternalApplicationService {
     private final ExternalApplicationConfig config;
     private final RestTemplate restTemplate = new RestTemplate();
 
-    /**
-     * Fetches all applications for a specific job post from external service
-     */
     public List<ApplicationResponseDto> getApplicationsByPostId(String postId) {
         String url = config.getServiceUrl() + "/applications/post/" + postId;
         log.info("Fetching applications for postId={} from {}", postId, url);
@@ -92,18 +90,15 @@ public class ExternalApplicationService {
                 .build();
     }
 
-    /**
-     * Parses string status to JobApplicationStatus enum
-     */
-    private rmit.saintgiong.jobpostapi.internal.common.type.JobApplicationStatus parseStatus(String status) {
+    private JobApplicationStatus parseStatus(String status) {
         if (status == null || status.trim().isEmpty()) {
-            return rmit.saintgiong.jobpostapi.internal.common.type.JobApplicationStatus.PENDING;
+            return JobApplicationStatus.PENDING;
         }
         try {
-            return rmit.saintgiong.jobpostapi.internal.common.type.JobApplicationStatus.valueOf(status.toUpperCase());
+            return JobApplicationStatus.valueOf(status.toUpperCase());
         } catch (IllegalArgumentException e) {
             log.warn("Unknown application status: {}, defaulting to PENDING", status);
-            return rmit.saintgiong.jobpostapi.internal.common.type.JobApplicationStatus.PENDING;
+            return JobApplicationStatus.PENDING;
         }
     }
 }
