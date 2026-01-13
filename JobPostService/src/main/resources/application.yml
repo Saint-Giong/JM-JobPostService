@@ -88,3 +88,7 @@ springdoc:
     operations-sorter: method
     tags-sorter: alpha
   show-actuator: false
+# External Application Service Configuration
+external:
+  application:
+    service-url: ${APPLICATION_SERVICE_URL:https://sgja-api.vohoangphuc.com}
