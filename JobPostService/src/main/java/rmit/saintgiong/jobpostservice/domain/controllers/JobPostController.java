@@ -62,7 +62,7 @@ public class JobPostController {
             @Valid @RequestBody CreateJobPostRequestDto requestDto) {
         return () -> {
             CreateJobPostResponseDto response = createService.createJobPost(requestDto);
-            return new ResponseEntity<>(response, HttpStatus.CREATED);
+            return new ResponseEntity<>(response, HttpStatus.OK);
         };
     }
 
@@ -92,7 +92,7 @@ public class JobPostController {
             @Valid @RequestBody UpdateJobPostRequestDto requestDto) {
         return () -> {
             updateService.updateJobPost(id, requestDto);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(HttpStatus.OK);
         };
     }
 
@@ -106,7 +106,7 @@ public class JobPostController {
             @Parameter(description = "ID of the job post to delete") @PathVariable @UUID String id) {
         return () -> {
             deleteService.deleteJobPost(id);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(HttpStatus.OK);
         };
     }
 
